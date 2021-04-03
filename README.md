@@ -1,2 +1,2 @@
 # supreme-parakeet
-Repositório referente aos trabalhos da matéria INFnumeros - Inteligência Artificial, composto pela nata da PUC-Rio.
+Repositório referente aos trabalhos da matéria INF1771 - Inteligência Artificial, composto pela nata da nata da PUC-Rio.
