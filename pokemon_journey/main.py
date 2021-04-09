@@ -88,10 +88,9 @@ def aStar(start, end, map: list):
     
     closedList = [[False for i in range(41)] for j in range(41)]
     mapInfo = [[Cell() for i in range(41)] for j in range(41)]
-    mapInfo[start[0]][start[1]].update(x = start[0], y=start[1])
+    mapInfo[start[0]][start[1]].update(x = start[0], y=start[1], f=0, g=0, h=0, cost=0)
     openList = []
     openList.append([0, ([start[0], start[1])])
-    endFound = False
     while len(openList) > 0:
         node = openList.pop()
         x = node[1][0]
@@ -104,8 +103,8 @@ def aStar(start, end, map: list):
                 mapInfo[x - 1][y].parent_x = x
                 mapInfo[x - 1][y].parent_y = y
                 printf("The destination cell is found\n")
-                tracePath(mapInfo, dest)
-                foundDest = True
+                return tracePath(mapInfo, dest)
+                
             elif closedList[x - 1][y] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x - 1][y].cost
                 hNew = manhattanDistance(x - 1, y, end)
@@ -122,8 +121,8 @@ def aStar(start, end, map: list):
                 mapInfo[x + 1][y].parent_x = x
                 mapInfo[x + 1][y].parent_y = y
                 printf("The destination cell is found\n")
-                tracePath(mapInfo, dest)
-                foundDest = True
+                return tracePath(mapInfo, dest)
+
             elif closedList[x + 1][y] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x + 1][y].cost
                 hNew = manhattanDistance(x + 1, y, end)
@@ -140,8 +139,8 @@ def aStar(start, end, map: list):
                 mapInfo[x][y - 1].parent_x = x
                 mapInfo[x][y - 1].parent_y = y
                 printf("The destination cell is found\n")
-                tracePath(mapInfo, dest)
-                foundDest = True
+                return tracePath(mapInfo, dest)
+
             elif closedList[x][y - 1] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x][y - 1].cost
                 hNew = manhattanDistance(x, y - 1, end)
@@ -158,8 +157,8 @@ def aStar(start, end, map: list):
                 mapInfo[x][y + 1].parent_x = x
                 mapInfo[x][y + 1].parent_y = y
                 printf("The destination cell is found\n")
-                tracePath(mapInfo, dest)
-                foundDest = True
+                return tracePath(mapInfo, dest)
+
             elif closedList[x][y + 1] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x][y + 1].cost
                 hNew = manhattanDistance(x, y + 1, end)
@@ -170,6 +169,5 @@ def aStar(start, end, map: list):
                     openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x][y + 1].update(x, y, fNew, gNew, hNew)
 
-    if foundDest == False:
-        print("Could not find your destination")
+    print("Could not find your destination")
     return
