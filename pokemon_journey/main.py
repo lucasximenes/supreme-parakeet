@@ -2,6 +2,16 @@
 baseando no algo do g4g: https://www.geeksforgeeks.org/a-search-algorithm/
 provavelmente dá pra otimizar o openList, vou dar uma olhada
 '''
+def numerify(val):
+    if val == 'M':
+        return 200
+    elif val == 'R':
+        return 5
+    elif val == '.':
+        return 1
+    else:
+        return 0
+
 
 class Game:
     def __init__(self):
@@ -22,18 +32,23 @@ class Game:
         self.bases[base-1] = difficulty
 
     def readMap(self):
-        path = input()
+        path = input("Digite aqui o caminho para o arquivo .txt do mapa")
         f = open(path, "r")
+        j = 0
         for line in f:
             self.mapa.append(line)
+            for i in range(41):
+                if line[i] == 'B':
+                    base.append((j, i))
+            j += 1
         f.close()
 
 class Cell:
-    def __init__(self):
+    def __init__(self, cost = 1e10):
         self.f = 1e10
         self.g = 1e10
         self.h = 1e10
-        self.cost = 1e10
+        self.cost = cost
         self.parent_x = -1
         self.parent_y = -1
     
@@ -73,7 +88,7 @@ def tracePath(end: int, mapInfo: list):
     path.reverse()
     return path
 
-def aStar(start, end, map: list):
+def aStar(start, end, gameMap: list):
     if inMap(start[0], start[1]) == False:
         print("Nonexistent inital position\n")
         return
@@ -86,11 +101,13 @@ def aStar(start, end, map: list):
         print("Initial position is the same as the final\n")
         return
     
+    numericalMap = map(numerify, gameMap)
     closedList = [[False for i in range(41)] for j in range(41)]
-    mapInfo = [[Cell() for i in range(41)] for j in range(41)]
+    mapInfo = [[Cell(cost=numericalMap[i][j]) for i in range(41)] for j in range(41)]
     mapInfo[start[0]][start[1]].update(x = start[0], y=start[1], f=0, g=0, h=0, cost=0)
     openList = []
-    openList.append([0, ([start[0], start[1])])
+    openList.append([0, [start[0], start[1]]])
+
     while len(openList) > 0:
         node = openList.pop()
         x = node[1][0]
@@ -171,3 +188,8 @@ def aStar(start, end, map: list):
 
     print("Could not find your destination")
     return
+
+if __name__ == '__main__':
+    game = Game()
+    game.readMap()
+
