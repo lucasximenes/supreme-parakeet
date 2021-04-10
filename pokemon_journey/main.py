@@ -119,7 +119,7 @@ def aStar(start, end, gameMap: list):
     
     numericalMap = [list(map(numerify, gameMap[i])) for i in range(41)]
     closedList = [[False for i in range(41)] for j in range(41)]
-    mapInfo = [[Cell(cost=numericalMap[i][j]) for i in range(41)] for j in range(41)]
+    mapInfo = [[Cell(cost=numericalMap[j][i]) for i in range(41)] for j in range(41)]
     mapInfo[start[0]][start[1]].update(x = start[0], y=start[1], f=0, g=0, h=0, cost=0)
     openList = []
     openList.append([0, [start[0], start[1]]])
