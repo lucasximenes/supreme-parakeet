@@ -138,3 +138,7 @@ dmypy.json
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Ignore text files #
+######################
+*.txt
