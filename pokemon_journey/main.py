@@ -15,15 +15,17 @@ def numerify(val):
 
 class Game:
     def __init__(self):
-        self.map = []
+        self.gameMap = []
+        self.start = (0, 0)
+        self.end = (0, 0)
         self.bases = []
         self.pokemons = {'Pikachu': 1.5, 'Bulbassauro': 1.4, 'Rattata': 1.3,
         'Caterpie': 1.2, 'Weedle': 1.1}
-        for i in range(12):
-            if i < 10:
-                self.bases.append(55 + i*5)
-            else:
-                self.bases.append(55 + (i+1)*5)
+        # for i in range(12):
+        #     if i < 10:
+        #         self.bases.append(55 + i*5)
+        #     else:
+        #         self.bases.append(55 + (i+1)*5)
     
     def setPokeStrenght(self, pokemon: str, val: float):
         self.pokemons[pokemon] = val
@@ -31,17 +33,31 @@ class Game:
     def setBaseDifficulty(self, base: int, difficulty: int):
         self.bases[base-1] = difficulty
 
+    def setStart(self, newStart: int):
+        self.start = newStart
+    
+    def setEnd(self, newEnd: int):
+        self.end = newEnd
+
     def readMap(self):
-        path = input("Digite aqui o caminho para o arquivo .txt do mapa")
+        path = input("Digite aqui o caminho para o arquivo .txt do mapa:\n")
         f = open(path, "r")
         j = 0
         for line in f:
-            self.mapa.append(line)
+            self.gameMap.append(line)
             for i in range(41):
                 if line[i] == 'B':
-                    base.append((j, i))
+                    self.bases.append((j, i))
+                elif line[i] == 'I':
+                    self.start = (j, i)
+                elif line[i] == 'F':
+                    self.end = (j, i)
             j += 1
         f.close()
+    
+    def getMap(self):
+        return self.gameMap
+    
 
 class Cell:
     def __init__(self, cost = 1e10):
@@ -75,10 +91,10 @@ class Cell:
 def inMap(x: int, y: int):
     return (x >= 0) and (y >= 0) and (x < 41) and (y < 41)
     
-def manhattanDistance(x: int, y: int, dest_x: int, dest_y: int):
-    return abs(x - dest_x) + abs(y - dest_y)
+def manhattanDistance(x: int, y: int, dest):
+    return abs(x - dest[0]) + abs(y - dest[0])
 
-def tracePath(end: int, mapInfo: list):
+def tracePath(mapInfo, end):
     x, y = end[0], end[1]
     path = []
     while(mapInfo[x][y].parent_x != x and mapInfo[x][y].parent_y != y):
@@ -101,7 +117,7 @@ def aStar(start, end, gameMap: list):
         print("Initial position is the same as the final\n")
         return
     
-    numericalMap = map(numerify, gameMap)
+    numericalMap = [list(map(numerify, gameMap[i])) for i in range(41)]
     closedList = [[False for i in range(41)] for j in range(41)]
     mapInfo = [[Cell(cost=numericalMap[i][j]) for i in range(41)] for j in range(41)]
     mapInfo[start[0]][start[1]].update(x = start[0], y=start[1], f=0, g=0, h=0, cost=0)
@@ -109,18 +125,19 @@ def aStar(start, end, gameMap: list):
     openList.append([0, [start[0], start[1]]])
 
     while len(openList) > 0:
+        print("looopingggg")
         node = openList.pop()
         x = node[1][0]
         y = node[1][1]
         f = node[0]
         closedList[x][y] = True
         #Look at north neighbour
-        if isValid(x - 1, y) == True:
+        if inMap(x - 1, y) == True:
             if (x - 1, y) == end:
                 mapInfo[x - 1][y].parent_x = x
                 mapInfo[x - 1][y].parent_y = y
-                printf("The destination cell is found\n")
-                return tracePath(mapInfo, dest)
+                print("The destination cell is found\n")
+                return tracePath(mapInfo, end)
                 
             elif closedList[x - 1][y] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x - 1][y].cost
@@ -128,17 +145,17 @@ def aStar(start, end, gameMap: list):
                 fNew = gNew + hNew
  
                 if (mapInfo[x - 1][y].f == 1e10 or mapInfo[x - 1][y].f > fNew):
-                    openList.insert([fNew, [x - 1, y]])
+                    openList.append([fNew, [x - 1, y]])
                     openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x - 1][y].update(x, y, fNew, gNew, hNew)
         
         #Look at south neighbour
-        if isValid(x + 1, y) == True:
+        if inMap(x + 1, y) == True:
             if (x + 1, y) == end:
                 mapInfo[x + 1][y].parent_x = x
                 mapInfo[x + 1][y].parent_y = y
-                printf("The destination cell is found\n")
-                return tracePath(mapInfo, dest)
+                print("The destination cell is found\n")
+                return tracePath(mapInfo, end)
 
             elif closedList[x + 1][y] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x + 1][y].cost
@@ -146,17 +163,17 @@ def aStar(start, end, gameMap: list):
                 fNew = gNew + hNew
  
                 if (mapInfo[x + 1][y].f == 1e10 or mapInfo[x + 1][y].f > fNew):
-                    openList.insert([fNew, [x + 1, y]])
+                    openList.append([fNew, [x + 1, y]])
                     openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x + 1][y].update(x, y, fNew, gNew, hNew)
         
         #Look at west neighbour
-        if isValid(x, y - 1) == True:
+        if inMap(x, y - 1) == True:
             if (x, y - 1) == end:
                 mapInfo[x][y - 1].parent_x = x
                 mapInfo[x][y - 1].parent_y = y
-                printf("The destination cell is found\n")
-                return tracePath(mapInfo, dest)
+                print("The destination cell is found\n")
+                return tracePath(mapInfo, end)
 
             elif closedList[x][y - 1] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x][y - 1].cost
@@ -164,17 +181,17 @@ def aStar(start, end, gameMap: list):
                 fNew = gNew + hNew
  
                 if (mapInfo[x][y - 1].f == 1e10 or mapInfo[x][y - 1].f > fNew):
-                    openList.insert([fNew, [x, y - 1]])
+                    openList.append([fNew, [x, y - 1]])
                     openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x][y - 1].update(x, y, fNew, gNew, hNew)
         
         #Look at east neighbour
-        if isValid(x, y + 1) == True:
+        if inMap(x, y + 1) == True:
             if (x, y) == end:
                 mapInfo[x][y + 1].parent_x = x
                 mapInfo[x][y + 1].parent_y = y
-                printf("The destination cell is found\n")
-                return tracePath(mapInfo, dest)
+                print("The destination cell is found\n")
+                return tracePath(mapInfo, end)
 
             elif closedList[x][y + 1] == False:
                 gNew = mapInfo[x][y].g + mapInfo[x][y + 1].cost
@@ -182,7 +199,7 @@ def aStar(start, end, gameMap: list):
                 fNew = gNew + hNew
  
                 if (mapInfo[x][y + 1].f == 1e10 or mapInfo[x][y + 1].f > fNew):
-                    openList.insert([fNew, [x, y + 1]])
+                    openList.append([fNew, [x, y + 1]])
                     openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x][y + 1].update(x, y, fNew, gNew, hNew)
 
@@ -192,4 +209,7 @@ def aStar(start, end, gameMap: list):
 if __name__ == '__main__':
     game = Game()
     game.readMap()
+    gameMap = game.getMap()
+    path = aStar(game.start, game.end, gameMap)
+    print(path)
 
