@@ -97,7 +97,7 @@ def manhattanDistance(x: int, y: int, dest):
 def tracePath(mapInfo, end):
     x, y = end[0], end[1]
     path = []
-    while(mapInfo[x][y].parent_x != x and mapInfo[x][y].parent_y != y):
+    while(mapInfo[x][y].parent_x != x or mapInfo[x][y].parent_y != y):
         path.append((x,y))
         x, y = mapInfo[x][y].parent_x, mapInfo[x][y].parent_y
     path.append((x,y))
@@ -125,7 +125,6 @@ def aStar(start, end, gameMap: list):
     openList.append([0, [start[0], start[1]]])
 
     while len(openList) > 0:
-        print("looopingggg")
         node = openList.pop()
         x = node[1][0]
         y = node[1][1]
@@ -211,5 +210,13 @@ if __name__ == '__main__':
     game.readMap()
     gameMap = game.getMap()
     path = aStar(game.start, game.end, gameMap)
-    print(path)
+    print("\n", path, "\n")
+    for coord in path:
+        s = list(gameMap[coord[0]])
+        s[coord[1]] = '@'
+        gameMap[coord[0]] = "".join(s)
+    f = open("out.txt", "w")
+    for line in gameMap:
+        f.write(line)
+    f.close()
 
