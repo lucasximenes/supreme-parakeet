@@ -1,6 +1,9 @@
 '''
 baseando no algo do g4g: https://www.geeksforgeeks.org/a-search-algorithm/
 provavelmente dá pra otimizar o openList, vou dar uma olhada
+jeito de otimizar:
+ao invés de fazer sort depois de todo append no open list
+é só dar no final do while
 '''
 def numerify(val):
     if val == 'M':
@@ -92,7 +95,7 @@ def inMap(x: int, y: int):
     return (x >= 0) and (y >= 0) and (x < 41) and (y < 41)
     
 def manhattanDistance(x: int, y: int, dest):
-    return abs(x - dest[0]) + abs(y - dest[0])
+    return (abs(x - dest[0]) + abs(y - dest[0]))/2
 
 def crazyHeuristic(x, y, dest):
     return 0
@@ -150,7 +153,6 @@ def aStar(start, end, gameMap: list, heuristicFunction):
  
                 if (mapInfo[x - 1][y].f == 1e10 or mapInfo[x - 1][y].f > fNew):
                     openList.append([fNew, [x - 1, y]])
-                    openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x - 1][y].update(x, y, fNew, gNew, hNew)
         
         #Look at south neighbour
@@ -168,7 +170,6 @@ def aStar(start, end, gameMap: list, heuristicFunction):
  
                 if (mapInfo[x + 1][y].f == 1e10 or mapInfo[x + 1][y].f > fNew):
                     openList.append([fNew, [x + 1, y]])
-                    openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x + 1][y].update(x, y, fNew, gNew, hNew)
         
         #Look at west neighbour
@@ -186,7 +187,6 @@ def aStar(start, end, gameMap: list, heuristicFunction):
  
                 if (mapInfo[x][y - 1].f == 1e10 or mapInfo[x][y - 1].f > fNew):
                     openList.append([fNew, [x, y - 1]])
-                    openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x][y - 1].update(x, y, fNew, gNew, hNew)
         
         #Look at east neighbour
@@ -204,9 +204,10 @@ def aStar(start, end, gameMap: list, heuristicFunction):
  
                 if (mapInfo[x][y + 1].f == 1e10 or mapInfo[x][y + 1].f > fNew):
                     openList.append([fNew, [x, y + 1]])
-                    openList.sort(key=lambda x: x[0], reverse=True)
                     mapInfo[x][y + 1].update(x, y, fNew, gNew, hNew)
-
+        
+        openList.sort(key=lambda x: x[0], reverse=True)
+    
     print("Could not find your destination")
     return
 
@@ -220,7 +221,7 @@ if __name__ == '__main__':
         s = list(gameMap[coord[0]])
         s[coord[1]] = '@'
         gameMap[coord[0]] = "".join(s)
-    f = open("outS.txt", "w")
+    f = open("outMan.txt", "w")
     for line in gameMap:
         f.write(line)
     f.write(f"\nTotal cost = {totalCost}")
