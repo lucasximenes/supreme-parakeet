@@ -5,16 +5,8 @@ jeito de otimizar:
 ao invés de fazer sort depois de todo append no open list
 é só dar no final do while
 '''
-def numerify(val):
-    if val == 'M':
-        return 200
-    elif val == 'R':
-        return 5
-    elif val == '.':
-        return 1
-    else:
-        return 0
-
+from itertools import product
+import math
 
 class Game:
     def __init__(self):
@@ -22,15 +14,15 @@ class Game:
         self.start = (0, 0)
         self.end = (0, 0)
         self.bases = []
-        self.pokemons = {'Pikachu': 1.5, 'Bulbassauro': 1.4, 'Rattata': 1.3,
-        'Caterpie': 1.2, 'Weedle': 1.1}
-        # for i in range(12):
-        #     if i < 10:
-        #         self.bases.append(55 + i*5)
-        #     else:
-        #         self.bases.append(55 + (i+1)*5)
+        self.pokemons = {4: 1.5, 3: 1.4, 2: 1.3,
+        1: 1.2, 0: 1.1}
+        for i in range(12):
+            if i < 10:
+                self.bases.append(55 + i*5)
+            else:
+                self.bases.append(55 + (i+1)*5)
     
-    def setPokeStrenght(self, pokemon: str, val: float):
+    def setPokeStrength(self, pokemon: str, val: float):
         self.pokemons[pokemon] = val
     
     def setBaseDifficulty(self, base: int, difficulty: int):
@@ -41,6 +33,12 @@ class Game:
     
     def setEnd(self, newEnd: int):
         self.end = newEnd
+    
+    def getPokemonStrength(self, index):
+        return self.pokemons[index]
+
+    def getGymDifficulty(self, index):
+        return self.bases[index]
 
     def readMap(self):
         path = input("Digite aqui o caminho para o arquivo .txt do mapa:\n")
@@ -49,9 +47,7 @@ class Game:
         for line in f:
             self.gameMap.append(line)
             for i in range(41):
-                if line[i] == 'B':
-                    self.bases.append((j, i))
-                elif line[i] == 'I':
+                if line[i] == 'I':
                     self.start = (j, i)
                 elif line[i] == 'F':
                     self.end = (j, i)
@@ -61,6 +57,70 @@ class Game:
     def getMap(self):
         return self.gameMap
     
+class GymCell():
+    def __init__(self, parent, state, f, g, gym):
+        self.f = f
+        self.g = g
+        self.h = 0
+        self.cost = 0
+        self.state = state
+        self.parent = parent
+        self.sons = []
+        self.gym = gym
+    
+    def renderSons(self):
+        if self.gym < 11:
+            for son in possibleSons:
+                boolNeg = False
+                newState = [0, 0, 0, 0, 0]
+                for i in range(5):
+                    res = self.state[i] - son[i]
+                    if res < 0:
+                        boolNeg = True
+                        break
+                    newState[i] = res
+                if boolNeg == False:
+                    totalStrength = sum([game.getPokemonStrength(i)*son[i] for i in range(5)])
+                    self.cost = (game.getGymDifficulty(self.gym) / totalStrength)
+                    gym = self.gym + 1
+                    g = self.g + self.cost
+                    h = heuristicfunc(newState, gym)
+                    f = g + h
+                    self.sons.append(GymCell(parent=self.state, state=newState, gym=gym, f=f, g=g))
+        else:
+            mask = [0, 0, 0, 0, 0]
+            newState = self.state
+            for i,st in enumerate(self.state):
+                if st != 0:
+                    newState[i] = self.state[i] - 1
+                    mask[i] = 1                    
+            totalStrength = sum([game.getPokemonStrength(i)*mask[i] for i in range(5)])
+            self.cost = (game.bases[self.gym] / totalStrength)
+            gym = self.gym + 1
+            g = self.g + self.cost
+            h = heuristicfunc(newState, gym)
+            if h != 1e10:
+                f = g + h
+                self.sons.append(GymCell(parent=self.state, state=newState, gym=gym, f=f, g=g))
+    
+    def getSons(self):
+        return self.sons
+
+    def getF(self):
+        return self.f
+
+    def getGym(self):
+        return self.gym
+
+    def getG(self):
+        return self.g
+
+    def getParent(self):
+        return self.parent
+
+    def getState(self):
+        return self.state
+
 
 class Cell:
     def __init__(self, cost = 1e10):
@@ -91,6 +151,42 @@ class Cell:
             self.cost = cost
 
 
+def numerify(val):
+    if val == 'M':
+        return 200
+    elif val == 'R':
+        return 5
+    elif val == '.':
+        return 1
+    else:
+        return 0
+
+def heuristicfunc(state, gym):
+    if gym == 12:
+        return 0
+    soma = sum(state)
+    if soma == 0 or soma < 11 - gym:
+        return 1e10
+    else:
+        return 300 - sum([1 if i > 0 else 0 for i in state])*50 - soma
+
+def aStarGyms():
+    openList = []
+    openList.append(GymCell(parent=-1, state=[5, 5, 5, 5, 5], f=0, g=0, gym=-1))
+    while len(openList) > 0:
+        node = openList.pop()
+        if node.getGym() == 12:
+            return node
+        node.renderSons()
+        sons = node.getSons()
+        for son in sons:
+            openList.append(son)
+        print("Tamanho da openList = ", len(openList), " Ginásio atual = ", node.getGym(), " my daddy = ", node.getParent(), " g = ", node.getG(),  " f = ", node.getF())
+        openList.sort(key=lambda x: x.getF(), reverse=True)
+    
+    print("could not find this sh**")
+    return
+
 def inMap(x: int, y: int):
     return (x >= 0) and (y >= 0) and (x < 41) and (y < 41)
     
@@ -100,6 +196,9 @@ def manhattanDistance(x: int, y: int, dest):
 def crazyHeuristic(x, y, dest):
     return 0
 
+# 
+# Guarda o caminho percorrido
+# 
 def tracePath(mapInfo, end):
     x, y = end[0], end[1]
     totalCost = 0
@@ -125,7 +224,7 @@ def aStar(start, end, gameMap: list, heuristicFunction):
         print("Initial position is the same as the final\n")
         return
     
-    numericalMap = [list(map(numerify, gameMap[i])) for i in range(41)]
+    numericalMap = [list(map(numerify, gameMap[i])) for i in range(41)] # mapa dos custos
     closedList = [[False for i in range(41)] for j in range(41)]
     mapInfo = [[Cell(cost=numericalMap[j][i]) for i in range(41)] for j in range(41)]
     mapInfo[start[0]][start[1]].update(x = start[0], y=start[1], f=0, g=0, h=0, cost=0)
@@ -211,8 +310,11 @@ def aStar(start, end, gameMap: list, heuristicFunction):
     print("Could not find your destination")
     return
 
+
+game = Game()
+possibleSons = list(product(range(2), repeat = 5)) 
+possibleSons.remove((0, 0, 0, 0, 0))
 if __name__ == '__main__':
-    game = Game()
     game.readMap()
     gameMap = game.getMap()
     path, totalCost = aStar(game.start, game.end, gameMap, manhattanDistance)
@@ -226,4 +328,6 @@ if __name__ == '__main__':
         f.write(line)
     f.write(f"\nTotal cost = {totalCost}")
     f.close()
+    caboo = aStarGyms()
+    print("CUSTO FINAL É:", caboo.getG())
 
