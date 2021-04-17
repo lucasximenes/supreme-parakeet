@@ -122,6 +122,61 @@ class GymCell():
         return self.state
 
 
+class BBGymCell:
+    def __init__(self, parent, state, cost, gym):
+        self.cost = cost
+        self.state = state
+        self.parent = parent
+        self.sons = []
+        self.gym = gym
+    
+    def renderSons(self, extendedList):
+        if self.gym < 11:
+            for son in possibleSons:
+                boolNeg = False
+                newState = [0, 0, 0, 0, 0]
+                for i in range(5):
+                    res = self.state[i] - son[i]   
+                    if res < 0:
+                        boolNeg = True
+                        break
+                    newState[i] = res
+                if boolNeg == False:
+                    #statestr -> [5, 5, 5, 5, 5] = '55555' p/ usar como hash de dict
+                    statestr = "".join(list(map(str, newState)))
+                    if extendedList.get(statestr, False) == False:
+                        totalStrength = sum([game.getPokemonStrength(i)*son[i] for i in range(5)])
+                        cost = (game.getGymDifficulty(self.gym) / totalStrength)
+                        gym = self.gym + 1
+                        self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost))
+                    
+        else:
+            mask = [0, 0, 0, 0, 0]
+            newState = self.state
+            for i,st in enumerate(self.state):
+                if st != 0:
+                    newState[i] = self.state[i] - 1
+                    mask[i] = 1                    
+            totalStrength = sum([game.getPokemonStrength(i)*mask[i] for i in range(5)])
+            cost = (game.getGymDifficulty(self.gym) / totalStrength)
+            gym = self.gym + 1
+            self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost))
+    
+    def getSons(self):
+        return self.sons
+
+    def getGym(self):
+        return self.gym
+
+    def getCost(self):
+        return self.cost
+
+    def getParent(self):
+        return self.parent
+
+    def getState(self):
+        return self.state
+
 class Cell:
     def __init__(self, cost = 1e10):
         self.f = 1e10
@@ -169,6 +224,32 @@ def heuristicfunc(state, gym):
         return 1e10
     else:
         return 300 - sum([1 if i > 0 else 0 for i in state])*50 - soma
+
+
+def BBGyms():
+    openList = []
+    finalCost = 1e10
+    chosenOne = None
+    extendedList = {}
+    openList.append(BBGymCell(parent=-1, state=[5, 5, 5, 5, 5], cost=0,  gym=-1))
+    while len(openList) > 0:
+        node = openList.pop()
+        cost = node.getCost()
+        if cost < finalCost:
+            if node.getGym() == 12:
+                finalCost = cost
+                chosenOne = node
+            nodestr = "".join(list(map(str, node.getState())))
+            if extendedList.get(nodestr, False) == False:
+                node.renderSons(extendedList)
+                extendedList[nodestr] = True
+                sons = node.getSons()
+                for son in sons:
+                    openList.append(son)
+                print("Tamanho da openList = ", len(openList), " Ginásio atual = ", node.getGym(), " my daddy = ", node.getParent(), " cost = ", node.getCost())
+                openList.sort(key=lambda x: x.getCost(), reverse=True)
+    
+    return chosenOne
 
 def aStarGyms():
     openList = []
@@ -328,6 +409,6 @@ if __name__ == '__main__':
         f.write(line)
     f.write(f"\nTotal cost = {totalCost}")
     f.close()
-    caboo = aStarGyms()
-    print("CUSTO FINAL É:", caboo.getG())
+    caboo = BBGyms()
+    print("CUSTO FINAL É:", caboo.getCost())
 
