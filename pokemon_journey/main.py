@@ -52,69 +52,6 @@ class Game:
     def getMap(self):
         return self.gameMap
     
-class GymCell():
-    def __init__(self, parent, state, f, g, gym):
-        self.f = f
-        self.g = g
-        self.h = 0
-        self.cost = 0
-        self.state = state
-        self.parent = parent
-        self.sons = []
-        self.gym = gym
-    
-    def renderSons(self):
-        if self.gym < 11:
-            for son in possibleSons:
-                boolNeg = False
-                newState = [0, 0, 0, 0, 0]
-                for i in range(5):
-                    res = self.state[i] - son[i]
-                    if res < 0:
-                        boolNeg = True
-                        break
-                    newState[i] = res
-                if boolNeg == False:
-                    totalStrength = sum([game.getPokemonStrength(i)*son[i] for i in range(5)])
-                    self.cost = (game.getGymDifficulty(self.gym) / totalStrength)
-                    gym = self.gym + 1
-                    g = self.g + self.cost
-                    h = heuristicfunc(newState, gym)
-                    f = g + h
-                    self.sons.append(GymCell(parent=self.state, state=newState, gym=gym, f=f, g=g))
-        else:
-            mask = [0, 0, 0, 0, 0]
-            newState = self.state
-            for i,st in enumerate(self.state):
-                if st != 0:
-                    newState[i] = self.state[i] - 1
-                    mask[i] = 1                    
-            totalStrength = sum([game.getPokemonStrength(i)*mask[i] for i in range(5)])
-            self.cost = (game.bases[self.gym] / totalStrength)
-            gym = self.gym + 1
-            g = self.g + self.cost
-            h = heuristicfunc(newState, gym)
-            if h != 1e10:
-                f = g + h
-                self.sons.append(GymCell(parent=self.state, state=newState, gym=gym, f=f, g=g))
-    
-    def getSons(self):
-        return self.sons
-
-    def getF(self):
-        return self.f
-
-    def getGym(self):
-        return self.gym
-
-    def getG(self):
-        return self.g
-
-    def getParent(self):
-        return self.parent
-
-    def getState(self):
-        return self.state
 
 
 class BBGymCell:
@@ -278,22 +215,6 @@ def BBGyms():
             
     return chosenOne
 
-def aStarGyms():
-    openList = []
-    openList.append(GymCell(parent=-1, state=[5, 5, 5, 5, 5], f=0, g=0, gym=-1))
-    while len(openList) > 0:
-        node = openList.pop()
-        if node.getGym() == 12:
-            return node
-        node.renderSons()
-        sons = node.getSons()
-        for son in sons:
-            openList.append(son)
-        print("Tamanho da openList = ", len(openList), " Ginásio atual = ", node.getGym(), " my daddy = ", node.getParent(), " g = ", node.getG(),  " f = ", node.getF())
-        openList.sort(key=lambda x: x.getF(), reverse=True)
-    
-    print("could not find this sh**")
-    return
 
 def inMap(x: int, y: int):
     return (x >= 0) and (y >= 0) and (x < 41) and (y < 41)
