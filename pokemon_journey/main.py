@@ -13,14 +13,9 @@ class Game:
         self.gameMap = []
         self.start = (0, 0)
         self.end = (0, 0)
-        self.bases = []
         self.pokemons = {4: 1.5, 3: 1.4, 2: 1.3,
         1: 1.2, 0: 1.1}
-        for i in range(12):
-            if i < 10:
-                self.bases.append(55 + i*5)
-            else:
-                self.bases.append(55 + (i+1)*5)
+        self.bases = [55,60,65,70,75,80,85,90,95,100,110,120]
     
     def setPokeStrength(self, pokemon: str, val: float):
         self.pokemons[pokemon] = val
@@ -123,12 +118,13 @@ class GymCell():
 
 
 class BBGymCell:
-    def __init__(self, parent, state, cost, gym):
+    def __init__(self, parent, state, cost, gym, parentObj):
         self.cost = cost
         self.state = state
         self.parent = parent
         self.sons = []
         self.gym = gym
+        self.parentObj = parentObj
     
     def renderSons(self, extendedList):
         if self.gym < 11:
@@ -152,7 +148,7 @@ class BBGymCell:
                         totalStrength = sum([game.getPokemonStrength(i)*son[i] for i in range(5)])
                         cost = (game.getGymDifficulty(self.gym) / totalStrength)
                         gym = self.gym + 1
-                        self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost))
+                        self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost, parentObj = self))
                     else:
                         print("Cai aqui")
         else:
@@ -166,7 +162,7 @@ class BBGymCell:
             if(totalStrength > 0):
                 cost = (game.getGymDifficulty(self.gym) / totalStrength)
                 gym = self.gym + 1
-                self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost))
+                self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost, parentObj = self))
     
     def getSons(self):
         return self.sons
@@ -182,6 +178,9 @@ class BBGymCell:
 
     def getState(self):
         return self.state
+    
+    def getParentObj(self):
+        return self.parentObj
 
 class Cell:
     def __init__(self, cost = 1e10):
@@ -241,7 +240,7 @@ def BBGyms():
     finalCost = 1e10
     chosenOne = None
     extendedList = {}
-    openList.append(BBGymCell(parent=-1, state=[5, 5, 5, 5, 5], cost=0,  gym=-1))
+    openList.append(BBGymCell(parent=-1, state=[5, 5, 5, 5, 5], cost=0,  gym=-1, parentObj = None))
     while len(openList) > 0:
         node = openList.pop()
         cost = node.getCost()
@@ -451,6 +450,9 @@ if __name__ == '__main__':
         f.write(line)
     f.write(f"\nTotal cost = {totalCost}")
     f.close()
-    BBGyms()
-    # print("CUSTO FINAL É:", caboo.getCost())
 
+    caboo = BBGyms()
+    print("CUSTO FINAL É:", caboo.getCost())
+    while(caboo.getParentObj() != None):
+        print(caboo.getState())
+        caboo = caboo.getParentObj()
