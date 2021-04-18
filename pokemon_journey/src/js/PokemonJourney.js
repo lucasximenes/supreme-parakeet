@@ -10,7 +10,7 @@ const ASH_OFFSET = {
     x: 16 * GLOBAL_SCALE,
     y: 8 * GLOBAL_SCALE
 };
-const ASH_SPEED = 0.5;
+const ASH_SPEED = 1;
 
 document.body.appendChild(app.view);
 
@@ -19,7 +19,10 @@ function setTilePlacement(current_tile, i, j) {
     current_tile.y = TILESIZE * i;
 }
 
-function generateMap(input_map, free_path_textures, forest_texture, d_forest_texture) {
+function generateMap(
+    input_map, free_path_textures, 
+    forest_texture, d_forest_texture, gym_texture
+) {
     let start_i, start_j;
 
     for (let i = 0; i < input_map.length; i++) {
@@ -37,7 +40,7 @@ function generateMap(input_map, free_path_textures, forest_texture, d_forest_tex
                     current_tile = new PIXI.Sprite(free_path_textures[rnd]);
                     break;
                 case 'B': // tile should be base
-                    current_tile = new PIXI.Sprite(free_path_textures[0]);
+                    current_tile = new PIXI.Sprite(gym_texture);
                     break;
                 case 'I': // tile should be start
                     start_i = i;
@@ -61,6 +64,11 @@ function generateMap(input_map, free_path_textures, forest_texture, d_forest_tex
     return { i: start_i, j: start_j };
 }
 
+function resize() {
+    app.renderer.view.style.position = 'absolute';
+    app.renderer.view.style.left = ((window.innerWidth - app.renderer.width) >> 1) + 'px';
+    app.renderer.view.style.top = ((window.innerHeight - app.renderer.height) >> 1) + 'px';
+}
 
 /*
     walkToTile: moves ash's sprite towards target tile.
@@ -110,6 +118,7 @@ function walkToTile(ash_sprite, ash_sheet, tile) {
     return false;
 }
 
+
 let input_map = prompt("Enter map:");
 
 if (input_map) {
@@ -132,14 +141,17 @@ if (input_map) {
     app.loader.add('ash_walk_right_2', '../assets/ash/ash_walk_right_2.png')
 
     app.loader.add('forest', '../assets/map/forest.png')
-    app.loader.add('dense_forest', '../assets/map/dense_forest_1.png')
+    app.loader.add('dense_forest', '../assets/map/dense_forest.png')
     app.loader.add('free_path_1', '../assets/map/free_path_1.png')
     app.loader.add('free_path_2', '../assets/map/free_path_2.png')
     app.loader.add('free_path_3', '../assets/map/free_path_3.png')
+    app.loader.add('gym', '../assets/map/gym.png');
 
     app.loader.load((_loader, resources) => {
         app.renderer.autoResize = true;
         app.renderer.resize(TILESIZE * n_tiles_horiz, TILESIZE * n_tiles_vert);
+        resize();
+        window.addEventListener('resize', resize);
 
         let free_path_textures = [
             resources['free_path_1'].texture,
@@ -150,8 +162,9 @@ if (input_map) {
         // Generate map and grab start coordinates
         let start_coords = generateMap(input_map, 
             free_path_textures,
-            resources.forest.texture,
-            resources.dense_forest.texture);
+            resources['forest'].texture,
+            resources['dense_forest'].texture,
+            resources['gym'].texture);
 
         // Create and setup Ash's sprite
         let ash_sheet = {
@@ -193,26 +206,35 @@ if (input_map) {
         // offset position to fit in tile
         ash_sprite.x += ASH_OFFSET.x;
         ash_sprite.y += ASH_OFFSET.y;
-        ash_sprite.animationSpeed = .075;
+        ash_sprite.animationSpeed = ASH_SPEED / 10;
         ash_sprite.loop = false;
         app.stage.addChild(ash_sprite);
         ash_sprite.play();
 
-        // TODO: Should get the path at this point, but its hardcoded for now
-        let path = [
-            [start_coords.i, start_coords.j],
-            [start_coords.i, start_coords.j - 1],
-            [start_coords.i, start_coords.j - 2],
-            [start_coords.i + 1, start_coords.j - 2],
-            [start_coords.i + 1, start_coords.j - 3],
-            [start_coords.i + 1, start_coords.j - 4],
-            [start_coords.i + 1, start_coords.j - 5],
-            [start_coords.i + 1, start_coords.j - 6],
-            [start_coords.i + 1, start_coords.j - 7],
-            [start_coords.i + 1, start_coords.j - 8],
-            [start_coords.i, start_coords.j - 8],
-            [start_coords.i - 1, start_coords.j - 8],
-        ];
+        let input_path = prompt("Enter path:");
+
+        let path;
+        if (input_path) {
+            path = input_path.split('\n');
+            for (let i = 0; i < path.length; i++) {
+                path[i] = path[i].split(',');
+            }
+        } else {
+            path = [
+                [start_coords.i, start_coords.j],
+                [start_coords.i, start_coords.j - 1],
+                [start_coords.i, start_coords.j - 2],
+                [start_coords.i + 1, start_coords.j - 2],
+                [start_coords.i + 1, start_coords.j - 3],
+                [start_coords.i + 1, start_coords.j - 4],
+                [start_coords.i + 1, start_coords.j - 5],
+                [start_coords.i + 1, start_coords.j - 6],
+                [start_coords.i + 1, start_coords.j - 7],
+                [start_coords.i + 1, start_coords.j - 8],
+                [start_coords.i, start_coords.j - 8],
+                [start_coords.i - 1, start_coords.j - 8],
+            ];
+        }
         let current_tile = 0;
         
         app.ticker.add(() => {
