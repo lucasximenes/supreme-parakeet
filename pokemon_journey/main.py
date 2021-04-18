@@ -146,23 +146,15 @@ class BBGymCell:
                         print("\n\n\n\n\n\n\n AQUI \n\n\n\n")
                     if extendedList.get(statestr, False) == False:
                         totalStrength = sum([game.getPokemonStrength(i)*son[i] for i in range(5)])
-                        cost = (game.getGymDifficulty(self.gym) / totalStrength)
-                        gym = self.gym + 1
-                        self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost, parentObj = self))
+                        if totalStrength > 0:
+                            gym = self.gym + 1
+                            cost = (game.getGymDifficulty(gym) / totalStrength)
+                            self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost, parentObj = self))
                     else:
                         print("Cai aqui")
         else:
-            mask = [0, 0, 0, 0, 0]
-            newState = self.state
-            for i,st in enumerate(self.state):
-                if st != 0:
-                    newState[i] = self.state[i] - 1
-                    mask[i] = 1                    
-            totalStrength = sum([game.getPokemonStrength(i)*mask[i] for i in range(5)])
-            if(totalStrength > 0):
-                cost = (game.getGymDifficulty(self.gym) / totalStrength)
-                gym = self.gym + 1
-                self.sons.append(BBGymCell(parent=self.state, state=newState, gym=gym, cost=self.cost + cost, parentObj = self))
+            gym = self.gym + 1
+            self.sons.append(BBGymCell(parent=self.state, state=self.state, gym=gym, cost=self.cost, parentObj = self))
     
     def getSons(self):
         return self.sons
@@ -248,40 +240,41 @@ def BBGyms():
             if node.getGym() == 12:
                 finalCost = cost
                 chosenOne = node
-            nodestr = list(map(str, node.getState()))
-            nodestr.append(str(node.getGym()))
-            nodestr = "".join(nodestr)
-            
-            if extendedList.get(nodestr, False) == False:
+            else:
+                nodestr = list(map(str, node.getState()))
+                nodestr.append(str(node.getGym()))
+                nodestr = "".join(nodestr)
                 
-                node.renderSons(extendedList)
-                extendedList[nodestr] = True
-                sons = node.getSons()
-                for son in sons:
-                    print(son.getState())
+                if extendedList.get(nodestr, False) == False:
+                    
+                    node.renderSons(extendedList)
+                    extendedList[nodestr] = True
+                    sons = node.getSons()
+                    for son in sons:
+                        print(son.getState())
 
 
-                    if(son.getGym()> maxGym):
-                        print("Son greater than max ", son.getGym())
-                        maxGymSon = son.getGym()
+                        if(son.getGym()> maxGym):
+                            print("Son greater than max ", son.getGym())
+                            maxGymSon = son.getGym()
 
-                    sonstr = list(map(str, son.getState()))
-                    sonstr.append(str(son.getGym()))
-                    sonstr = "".join(sonstr)
+                        sonstr = list(map(str, son.getState()))
+                        sonstr.append(str(son.getGym()))
+                        sonstr = "".join(sonstr)
 
 
 
-                    # if extendedList.get(sonstr, False) == False:
-                    openList.append(son)
-                    # else:
-                        # print("Pó entrar nao")
-                if(node.getGym() > maxGym):
-                    maxGym = node.getGym()
-                print("Tamanho da openList = ", len(openList), " Ginásio atual = ", node.getGym(), " my daddy = ", node.getParent(), " cost = ", node.getCost())
-                print("Maximo ", maxGym, " Maximo son ", maxGymSon)
-                print("Nodestr", nodestr, " -- > " , node.getState())
+                        # if extendedList.get(sonstr, False) == False:
+                        openList.append(son)
+                        # else:
+                            # print("Pó entrar nao")
+                    if(node.getGym() > maxGym):
+                        maxGym = node.getGym()
+                    print("Tamanho da openList = ", len(openList), " Ginásio atual = ", node.getGym(), " my daddy = ", node.getParent(), " cost = ", node.getCost())
+                    print("Maximo ", maxGym, " Maximo son ", maxGymSon)
+                    print("Nodestr", nodestr, " -- > " , node.getState())
 
-                openList.sort(key=lambda x: x.getCost(), reverse=True)
+                    openList.sort(key=lambda x: x.getCost(), reverse=True)
             
     return chosenOne
 
@@ -441,6 +434,10 @@ if __name__ == '__main__':
     gameMap = game.getMap()
     path, totalCost = aStar(game.start, game.end, gameMap, manhattanDistance)
     print("\n", path, "\n")
+    f = open("path.txt", "w")
+    for node in path:
+        f.write(f"{node[0]},{node[1]}\n")
+    f.close()
     for coord in path:
         s = list(gameMap[coord[0]])
         s[coord[1]] = '@'
