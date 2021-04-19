@@ -110,35 +110,11 @@ def selection_pair(population: Population, fitness_func: FitnessFunc) -> Populat
     )
 
 def mutation(genome: Genome, num: int = 1, probability: float = 0.5) -> Genome:
-    #teste1
-    '''
-    for _ in range(num):
-        index_1 = randrange(len(genome))
-        index_2 = randrange(len(genome))
-        if random() < probability:
-            genome[index_1] = abs(genome[index_1] - 1)
-            genome[index_2] = abs(genome[index_2] - 1)
-        #genome[index] = genome[index] if random() > probability else abs(genome[index] - 1)
-    return genome
-    '''
-    #teste2
-    '''
     for _ in range(num):
         index = randrange(len(genome))
         genome[index] = genome[index] if random() > probability else abs(genome[index] - 1)
     return genome
-    '''
-    #teste3
 
-    for _ in range(num):
-        index_1 = randrange(len(genome))
-        step = randrange(12)
-        index_1_step = (index_1 + 5)%5
-        if random() < probability:
-            genome[index_1] = abs(genome[index_1] - 1)
-            genome[index_1_step*step] = abs(genome[index_1] - 1)
-        
-    return genome
 
 def sort_population(population: Population, fitness_func: FitnessFunc) -> Population:
     return sorted(population, key=fitness_func, reverse=True)
