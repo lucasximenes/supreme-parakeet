@@ -1,9 +1,5 @@
 '''
-baseando no algo do g4g: https://www.geeksforgeeks.org/a-search-algorithm/
-provavelmente dá pra otimizar o openList, vou dar uma olhada
-jeito de otimizar:
-ao invés de fazer sort depois de todo append no open list
-é só dar no final do while
+código do A* baseando no algo do g4g: https://www.geeksforgeeks.org/a-search-algorithm/
 '''
 from itertools import product
 import math
@@ -147,33 +143,24 @@ def numerify(val):
     else:
         return 0
 
-def heuristicfunc(state, gym):
-    if gym == 12:
-        return 0
-    soma = sum(state)
-    if soma == 0 or soma < 11 - gym:
-        return 1e10
-    else:
-        return 300 - sum([1 if i > 0 else 0 for i in state])*50 - soma
-
-
 def BBGyms():
-
     maxGym = 0
     maxGymSon = 0
-
     openList = []
     finalCost = 1e10
     chosenOne = None
     extendedList = {}
     openList.append(BBGymCell(parent=-1, state=[5, 5, 5, 5, 5], cost=0,  gym=-1, parentObj = None))
+
     while len(openList) > 0:
         node = openList.pop()
         cost = node.getCost()
+
         if cost < finalCost:
             if node.getGym() == 12:
                 finalCost = cost
                 chosenOne = node
+
             else:
                 nodestr = list(map(str, node.getState()))
                 nodestr.append('-')
@@ -181,26 +168,19 @@ def BBGyms():
                 nodestr = "".join(nodestr)
                 
                 if extendedList.get(nodestr, False) == False:
-                
                     node.renderSons(extendedList)
                     extendedList[nodestr] = True
                     sons = node.getSons()
-                    for son in sons:
 
+                    for son in sons:
                         if(son.getGym()> maxGymSon):
                             maxGymSon = son.getGym()
-
-                        sonstr = list(map(str, son.getState()))
-                        sonstr.append(str(son.getGym()))
-                        sonstr = "".join(sonstr)
-
-
-
                         openList.append(son)
+
                     if(node.getGym() > maxGym):
                         maxGym = node.getGym()
-                    print("Tamanho da openList = ", len(openList), " Ginásio atual = ", node.getGym(), " my daddy = ", node.getParent(), " cost = ", node.getCost())
-
+                        
+                    print("Tamanho da openList = ", len(openList), " Ginásio atual = ", node.getGym(), " My parent = ", node.getParent(), " Cost = ", node.getCost())
                     openList.sort(key=lambda x: x.getCost(), reverse=True)
             
     return chosenOne
@@ -331,53 +311,22 @@ def aStar(start, end, gameMap: list, heuristicFunction):
 
 
 game = Game()
-possibleSons = [
-    (0, 0, 0, 0, 1),
-    (0, 0, 0, 1, 0),
-    (0, 0, 0, 1, 1),
-    (0, 0, 1, 0, 0),
-    (0, 0, 1, 0, 1),
-    (0, 0, 1, 1, 0),
-    (0, 0, 1, 1, 1),
-    (0, 1, 0, 0, 0),
-    (0, 1, 0, 0, 1),
-    (0, 1, 0, 1, 0),
-    (0, 1, 0, 1, 1),
-    (0, 1, 1, 0, 0),
-    (0, 1, 1, 0, 1),
-    (0, 1, 1, 1, 0),
-    (0, 1, 1, 1, 1),
-    (1, 0, 0, 0, 0),
-    (1, 0, 0, 0, 1),
-    (1, 0, 0, 1, 0),
-    (1, 0, 0, 1, 1),
-    (1, 0, 1, 0, 0),
-    (1, 0, 1, 0, 1),
-    (1, 0, 1, 1, 0),
-    (1, 0, 1, 1, 1),
-    (1, 1, 0, 0, 0),
-    (1, 1, 0, 0, 1),
-    (1, 1, 0, 1, 0),
-    (1, 1, 0, 1, 1),
-    (1, 1, 1, 0, 0),
-    (1, 1, 1, 0, 1),
-    (1, 1, 1, 1, 0),
-    (1, 1, 1, 1, 1)
-]
+# Cria todos os binários de tamanho 0 menos 00000
+possibleSons = list(product(range(2), repeat = 5)) 
+possibleSons.remove((0, 0, 0, 0, 0))
 
 if __name__ == '__main__':
     game.readMap()
     gameMap = game.getMap()
     path, totalCost = aStar(game.start, game.end, gameMap, manhattanDistance)
-
     f = open("path.txt", "w")
+
     for coord in path:
         f.write(f"{coord[0]},{coord[1]}\n")
         s = list(gameMap[coord[0]])
         s[coord[1]] = '@'
         gameMap[coord[0]] = "".join(s)
     f.close()
-
     finalGymState = BBGyms()
     print("CUSTO FINAL É:", finalGymState.getCost())
 
