@@ -13,7 +13,7 @@ start :- (hypothesize(Animal)->
 
 
 save :-
-    tell('test_4.pl'),
+    tell('akinator.pl'),
     listing,
     told.
 
