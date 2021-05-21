@@ -23,3 +23,4 @@ O vídeo de apresentação está disponível no Google Drive, [nesse link](https
 
 ## Akinator
 
+![Image](https://github.com/lucasximenes/supreme-parakeet/blob/main/headers/findanimals.jpeg)
