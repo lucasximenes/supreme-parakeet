@@ -1,6 +1,8 @@
 :- dynamic sim/1,nao/1. 
 :- dynamic animal/2.
 
+
+
 start :- (hypothesize(Animal)->
 	write("O animal que voce esta pensando eh: "),write(Animal),nl,
 	write("Acertei? (s/n)"),nl,
@@ -8,14 +10,8 @@ start :- (hypothesize(Animal)->
 	(
 		X = 's' -> write('Sou um genio!'),undo;
 		X = 'n' -> nl,learnAnimal(Animal),!
-	);learnAnimal(unknown), undo).
+	);learnAnimal(unknown)).
 
-
-
-save :-
-    tell('akinator.pl'),
-    listing,
-    told.
 
 
 
@@ -30,54 +26,6 @@ hypothesize(A) :-
 
 
 
-animal(cavalo, ['tem pelo','bebe leite','eh usado para transporte','tem rabo','relincha']).
-
-animal(cachorro, ['tem pelo','bebe leite','tem rabo','late']).
-
-animal(gato, ['tem pelo','bebe leite','tem rabo','mia']).
-
-animal(unknown,[]).
-
-isEmpty([]).
-
-getNeg([H|T],X):-
-	(nao(H)->X = H;
-	isEmpty(T)-> X = [];
-	getNeg(T,X)
-	).
-	
-
-
-excludeNeg(Inic, Fin) :-
-	getNeg(Inic,X),
-	(isEmpty(X)->Fin = Inic;
-	del(X,Inic,Fin)
-	).
-
-knowledgeList(Y,V,K):-
-	excludeNeg(V,N),
-	append(N,[Y],K).
-
-
-isUnknown(unknown).
-
-learnAnimal(A) :-
-	write('Putz... entao nao sei. Qual animal voce esta pensando?'),nl,
-	read(X),nl,
-	(isUnknown(A)->write('Qual pergunta eu devo fazer para saber que eh '),write(X),write('?'),nl,
-		read(Y),nl,
-		asserta(animal(X,[Y])),undo,save;
-		write('Qual pergunta eu devo fazer para diferenciar '),write(A),write(' de '),write(X),write('?'),nl,
-		read(Y),nl,
-		write('Obrigado! Vou anotar aqui pra proxima!'),nl,
-		animal(A,L),
-		knowledgeList(Y,L,K),
-		asserta(animal(X,K)),undo,save
-	),undo.
-
-
-
-
 
 ask(Characteristic) :-
 	write("O animal "), write(Characteristic), write("? (s/n)"),nl,
@@ -89,6 +37,48 @@ ask(Characteristic) :-
 
 
 verify(S) :- (sim(S) -> true ; (nao(S) -> fail ; ask(S))). 
+
+
+
+
+animal(cavalo, ['tem pelo','bebe leite','eh usado para transporte','tem rabo','relincha']).
+
+animal(cachorro, ['tem pelo','bebe leite','tem rabo','late']).
+
+animal(gato, ['tem pelo','bebe leite','tem rabo','mia']).
+
+
+
+isEmpty([]).
+
+isUnknown(unknown).
+
+findSim(L) :- findall(X,sim(X), L).
+
+learnAnimal(A) :-
+	write('Putz... entao nao sei. Qual animal voce esta pensando?'),nl,
+	read(X),nl,
+	(isUnknown(A)->write('Qual pergunta eu devo fazer para saber que eh '),write(X),write('?'),nl,
+		read(Y),nl,
+		findSim(P),
+		(isEmpty(P)->asserta(animal(X,[Y]));append(P,[Y],J),
+		assertz(animal(X,J))),
+		write('Obrigado! Vou anotar aqui pra proxima!'),nl,undo,save;
+		write('Qual pergunta eu devo fazer para diferenciar '),write(A),write(' de '),write(X),write('?'),nl,
+		read(Y),nl,
+		write('Obrigado! Vou anotar aqui pra proxima!'),nl,
+		animal(A,L),
+		findSim(P),
+		append(P,[Y],J),
+		asserta(animal(X,J)),undo,save
+	),undo.
+
+
+
+save :-
+    tell('akinator.pl'),
+    listing,
+    told.
 
 
 undo :-
