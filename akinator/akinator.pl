@@ -40,7 +40,6 @@ verify(S) :- (sim(S) -> true ; (nao(S) -> fail ; ask(S))).
 
 
 
-
 isEmpty([]).
 
 isUnknown(unknown).
@@ -50,23 +49,24 @@ findSim(L) :- findall(X,sim(X), L).
 learnAnimal(A) :-
 	write('Putz... entao nao sei. Qual animal voce esta pensando?'),nl,
 	read(X),nl,
+
 	(isUnknown(A)->write('Qual pergunta eu devo fazer para saber que eh '),write(X),write('?'),nl,
 		read(Y),nl,
 		findSim(P),
 		(isEmpty(P)->asserta(animal(X,[Y]));append(P,[Y],J),
 		assertz(animal(X,J))),
 		write('Obrigado! Vou anotar aqui pra proxima!'),nl,undo,save;
+
+
 		write('Qual pergunta eu devo fazer para diferenciar '),write(A),write(' de '),write(X),write('?'),nl,
 		read(Y),nl,
 		write('Obrigado! Vou anotar aqui pra proxima!'),nl,
-		animal(A,L),
 		findSim(P),
 		append(P,[Y],J),
 		asserta(animal(X,J)),undo,save
 	),undo.
 
 
-mymodule:listing.
 save :-
     tell('animals_data.pl'),
     listing(animal),
