@@ -34,8 +34,6 @@ ask(Characteristic) :-
 	
 
 
-
-
 verify(S) :- (sim(S) -> true ; (nao(S) -> fail ; ask(S))). 
 
 
@@ -50,11 +48,15 @@ learnAnimal(A) :-
 	write('Putz... entao nao sei. Qual animal voce esta pensando?'),nl,
 	read(X),nl,
 
-	(isUnknown(A)->write('Qual pergunta eu devo fazer para saber que eh '),write(X),write('?'),nl,
+	(
+		isUnknown(A)->write('Qual pergunta eu devo fazer para saber que eh '),write(X),write('?'),nl,
 		read(Y),nl,
 		findSim(P),
-		(isEmpty(P)->asserta(animal(X,[Y]));append(P,[Y],J),
-		assertz(animal(X,J))),
+			(
+			isEmpty(P)->asserta(animal(X,[Y]));
+			append(P,[Y],J),
+			assertz(animal(X,J))
+			),
 		write('Obrigado! Vou anotar aqui pra proxima!'),nl,undo,save;
 
 
@@ -63,7 +65,7 @@ learnAnimal(A) :-
 		write('Obrigado! Vou anotar aqui pra proxima!'),nl,
 		findSim(P),
 		append(P,[Y],J),
-		asserta(animal(X,J)),undo,save
+		assertz(animal(X,J)),undo,save
 	),undo.
 
 
