@@ -44,6 +44,7 @@ function generateMap(
                     current_tile = new PIXI.Sprite(gym_texture);
                     break;
                 case 'I': // tile should be start
+                    console.log(i,j);
                     start_i = i;
                     start_j = j;
                     current_tile = new PIXI.Sprite(free_path_textures[0]);
@@ -52,6 +53,7 @@ function generateMap(
                     current_tile = new PIXI.Sprite(free_path_textures[0]);
                     break;
                 default:
+                    console.log(i,j);
                     console.log(input_map[i][j]);
                     is_valid = false;
                     break;
@@ -130,6 +132,8 @@ if (input_map) {
     let n_tiles_vert = input_map.length;
     let n_tiles_horiz = input_map[0].length;
 
+    console.log(input_map);
+
     // Load assets
     app.loader.add('ash_stand_back', '../assets/ash/ash_stand_back.png')
     app.loader.add('ash_stand_front', '../assets/ash/ash_stand_front.png')
@@ -205,6 +209,7 @@ if (input_map) {
         let ash_sprite = new PIXI.AnimatedSprite(ash_sheet['stand_south']);
         ash_sprite.anchor.set(0.5);
         ash_sprite.scale.set(GLOBAL_SCALE);
+        // console.log()
         setTilePlacement(ash_sprite, start_coords.i, start_coords.j);
 
         // offset position to fit in tile
