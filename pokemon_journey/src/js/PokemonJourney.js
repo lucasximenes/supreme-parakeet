@@ -28,6 +28,7 @@ function generateMap(
     for (let i = 0; i < input_map.length; i++) {
         for (let j = 0; j < input_map[0].length; j++) {
             let current_tile;
+            let is_valid = true;
             switch (input_map[i][j]) {
                 case 'M': // tile should be deep forest
                     current_tile = new PIXI.Sprite(d_forest_texture);
@@ -54,12 +55,15 @@ function generateMap(
                 default:
                     console.log(i,j);
                     console.log(input_map[i][j]);
-                    return;
+                    is_valid = false;
+                    break;
             }
-            setTilePlacement(current_tile, i, j);
-            current_tile.scale.set(GLOBAL_SCALE)
-            
-            app.stage.addChild(current_tile);
+            if (is_valid) {
+                setTilePlacement(current_tile, i, j);
+                current_tile.scale.set(GLOBAL_SCALE)
+                
+                app.stage.addChild(current_tile);
+            }
         }
     }
 
@@ -124,7 +128,7 @@ function walkToTile(ash_sprite, ash_sheet, tile) {
 let input_map = prompt("Enter map:");
 
 if (input_map) {
-    input_map = input_map.split('\n');
+    input_map = input_map.split("\n");
     let n_tiles_vert = input_map.length;
     let n_tiles_horiz = input_map[0].length;
 
