@@ -33,8 +33,13 @@ class GameAI():
     energy = 0
 
 
+    nearDanger = False
+    triedToPickUpTreasure = False
+    # botCompass N(0), S(1), E(2), W(3), NE(4), SE(5), SW(6), NW(7)
+    botCompass = [0,0,0,0,0,0,0,0]
 
-    botState = [0,0,0,0,0,0]
+    # botEnvironment Item1, Item2, Item3, Enemy
+    botEnvironment = [0,0,0,0]
 
     # <summary>
     # Refresh player status
@@ -55,50 +60,84 @@ class GameAI():
         self.score = score
         self.energy = energy
 
-    def UpdateBotState(self,command):
+    def UpdateBotCompass(self,command):
+        print(self.botCompass[7],self.botCompass[0],self.botCompass[4])
+        print(self.botCompass[3],"*",self.botCompass[2])
+        print(self.botCompass[6],self.botCompass[1],self.botCompass[5])
 
-        oldState = self.botState
+        oldState = self.botCompass
         if(command == 'right'):
-            self.botState[0] = oldState[2]
-            self.botState[1] = oldState[3]
-            self.botState[2] = oldState[1]
-            self.botState[3] = oldState[0]
+            self.botCompass[0] = oldState[2] # East becomes north
+            self.botCompass[1] = oldState[3] # West becomes south
+            self.botCompass[2] = oldState[1] # South becomes East
+            self.botCompass[3] = oldState[0] # North becomes west
+            self.botCompass[4] = oldState[5] # NE becomes SE 
+            self.botCompass[5] = oldState[6] # SE becomes SW
+            self.botCompass[6] = oldState[7] # SW becomes NW
+            self.botCompass[7] = oldState[4] # NW becomes NE
+
         if(command == 'left'):
-            self.botState[0] = oldState[3]
-            self.botState[1] = oldState[2]
-            self.botState[2] = oldState[0]
-            self.botState[3] = oldState[1]
+            self.botCompass[0] = oldState[3] # East becomes north
+            self.botCompass[1] = oldState[2] # West becomes south
+            self.botCompass[2] = oldState[0] # South becomes East
+            self.botCompass[3] = oldState[1] # North becomes west
+            self.botCompass[4] = oldState[7] # NE becomes NW 
+            self.botCompass[5] = oldState[4] # SE becomes NE
+            self.botCompass[6] = oldState[5] # SW becomes SE
+            self.botCompass[7] = oldState[6] # NW becomes SW
         if(command == 're'):
-            self.botState[0] = oldState[0]
-            self.botState[1] = 0
-            self.botState[2] = 0
-            self.botState[3] = 0
+            self.botCompass[0] = oldState[0]
+            self.botCompass[1:4] = [0,0,0,0]
+
+            self.botCompass[4] = oldState[2]
+            self.botCompass[7] = oldState[3]
+            if(self.nearDanger):
+                self.botCompass[4] = -1
+                self.botCompass[7] = -1
         if(command == 'front'):
-            self.botState = [0,0,0,0,0,0]
-        print(self.botState)
+            self.botCompass[0] = 0
+            self.botCompass[1] = 0 # 
+            self.botCompass[2] = oldState[4] # NE becomes E
+            self.botCompass[3] = oldState[7] # NW becomes W
+            self.botCompass[4] = 0 #
+            self.botCompass[5] = oldState[2] # E becomes SE
+            self.botCompass[6] = oldState[3] # W becomes SW
+            self.botCompass[7] = 0 # 
+
+        
 
     def StateAction(self):
 
         action = 2
-        if(self.botState[5] == 1): # Enemy in line
+        if(self.botEnvironment[3] == 1): # Enemy in line
             action = 3
-        elif(self.botState[4] == 1): # Item
-            self.botState[4] = 0
-            action = 4
-        elif(self.botState[4] == 2): # Item
-            self.botState[4] = 0
+            self.botEnvironment[3] = 0
+        elif(self.botEnvironment[0] == 1 or self.botEnvironment[2] == 1): # Treasure
+            if(self.triedToPickUpTreasure):
+                print("Vou tentar pegar alguma coisa com 4")
+                action = 4
+            else:
+                action = 5
+                print("Vou tentar pegar alguma coisa com 5")
+                self.triedToPickUpTreasure = True
+
+        elif(self.botCompass[1] == 1 and self.energy < 100): # Power
+            self.botEnvironment[1] = 0
             action = 6
-        elif(self.botState[0] == 1): # Blocked
-            if(self.botState[2] == 0): # Right free
+        elif(self.botCompass[0] == 1): # Blocked
+            if(self.botCompass[2] == 0): # Right free
                 action = 0
-            elif(self.botState[3] == 0): # Left free
+            elif(self.botCompass[3] == 0): # Left free
                 action = 1
-            elif(self.botState[1] == 0): # Back free
+            elif(self.botCompass[1] == 0): # Back free
                 action = 7
 
 
-        self.botState[5] = 0 # reset enemy in line
         print("Mandando a action ", action)
+
+        if(action!=5):
+            self.triedToPickUpTreasure = False
+            self.botEnvironment[0] = 0
 
         return action
 
@@ -190,44 +229,57 @@ class GameAI():
         
        
         for s in o:
-
+            print(s)
             if s == 'blocked':
-                self.botState[0] = 1
+                self.botCompass[0] = 1
 
             if s == 'shooting':
-                self.botState[0] = 1
+                self.botCompass[0] = 1
                 # pass
             
             elif s == "steps":
-                self.botState[5] = 1
+                self.botCompass[0] = 1
                 # pass
             
             elif s == "breeze":
                 # pass
-                self.botState[0] = 1
+                if(-1 in self.botCompass[1:]):
+                    self.botCompass[0] = 0
+                    self.nearDanger = False
+                else:
+                    self.botCompass[0] = 1
+                    self.botCompass[2] = 1
+                    self.botCompass[3] = 1
+                    self.nearDanger = True
 
 
             elif s == "flash":
-                self.botState[0] = 1
+                if(-1 in self.botCompass[1:]):
+                    self.botCompass[0] = 0
+                    self.nearDanger = False
+                else:
+                    self.botCompass[0] = 1
+                    self.botCompass[2] = 1
+                    self.botCompass[3] = 1
+                    self.nearDanger = True
                 # pass
 
             elif s == "blueLight":
-                self.botState[4] = 1
+                self.botEnvironment[0] = 1
                 # pass
 
             elif s == "redLight":
-                self.botState[4] = 2
+                self.botEnvironment[1] = 1
                 # pass
 
             elif s == "greenLight":
-                self.botState[4] = 3
-                # pass
+                pass
 
             elif s == "weakLight":
-                self.botState[4] = 4
+                self.botEnvironment[2] = 1
                 # pass
             elif "enemy#" in s:
-                self.botState[5] = 1
+                self.botEnvironment[3] = 1
 
 
 
@@ -250,13 +302,13 @@ class GameAI():
 
 
         if n == 0:
-            self.UpdateBotState('right')
+            self.UpdateBotCompass('right')
             return "virar_direita"
         elif n == 1:
-            self.UpdateBotState('left')
+            self.UpdateBotCompass('left')
             return "virar_esquerda"
         elif n == 2:
-            self.UpdateBotState('front')
+            self.UpdateBotCompass('front')
             return "andar"
         elif n == 3:
             print("Shooting")
@@ -268,7 +320,7 @@ class GameAI():
         elif n == 6:
             return "pegar_powerup"
         elif n == 7:
-            self.UpdateBotState('re')
+            self.UpdateBotCompass('re')
             return "andar_re"
 
         return ""

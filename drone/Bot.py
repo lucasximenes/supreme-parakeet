@@ -40,7 +40,7 @@ class Bot():
     timer1 = None
     
     running = True
-    thread_interval = 1 # USE BETWEEN 0.1 and 1 (0.1 real setting, 1 debug settings and makes the bot slower)
+    thread_interval = 0.1 # USE BETWEEN 0.1 and 1 (0.1 real setting, 1 debug settings and makes the bot slower)
 
     playerList = {} #new Dictionary<long, PlayerInfo>
     shotList = [] #new List<ShotInfo>
@@ -316,7 +316,7 @@ class Bot():
 
     def timer1_Tick(self):
         
-        self.msgSeconds += self.timer1.interval * 0 # KEEP THIS AS IS - 1000 miliseconds = 1 second
+        self.msgSeconds += self.timer1.interval * 1000 # KEEP THIS AS IS - 1000 miliseconds = 1 second
 
         self.client.sendRequestGameStatus()
         if self.gameStatus == "Game":
