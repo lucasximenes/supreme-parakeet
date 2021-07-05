@@ -33,15 +33,18 @@ class GameAI():
     energy = 0
 
 
+
     nearDanger = False
     triedToPickUpTreasure = False
 
     botCompass = {'front':0,'back':0,'right':0,'left':0,'upright':0,'upleft':0,'lowright':0,'lowleft':0}
 
     # botEnvironment Item1, Item2, Item3, Enemy
-    botEnvironment = [0,0,0,0]
+    botEnvironment = [0,0,0,0,0]
 
     botMap = np.array(34*[59*['?']])
+
+    countRotate = 0
 
     # <summary>
     # Refresh player status
@@ -82,6 +85,7 @@ class GameAI():
         # T - Treasure
         # H - PowerUp
         # X - Danger
+        # W - Wall
         if(cX > 58 or cX < 0 or cY > 33 or cY < 0):
             return
         elif(self.botMap[cY,cX] == '.' or self.botMap[cY,cX] == '?' or self.botMap[cY,cX] == '0' ):
@@ -189,8 +193,19 @@ class GameAI():
         #  Attack State
 
         if(self.botEnvironment[3] == 1): # Enemy in line
-            action = 3
+            if(self.botEnvironment[4] == 1 and self.energy < 50):
+                action = 0
+            else:
+                action = 3
             self.botEnvironment[3] = 0
+
+
+
+        # ===========================================================
+        #  Escape State
+        elif(self.botEnvironment[4] == 1): # Enemy in line
+            action = 0
+            self.botEnvironment[4] = 0
 
 
         # ===========================================================
@@ -213,12 +228,15 @@ class GameAI():
         #  Explorer State
         else:
             if(self.botCompass['front'] == 1): # Front Blocked
-                if(self.botCompass['right'] == 0): # Right free
+                if(self.botCompass['right'] == 0 and self.countRotate < 10): # Right free
                     action = 0
-                elif(self.botCompass['left'] == 0): # Left free
+                    self.countRotate += 1
+                elif(self.botCompass['left'] == 0 and self.countRotate < 10): # Left free
                     action = 1
+                    self.countRotate += 1
                 elif(self.botCompass['back'] == 0): # Back free
                     action = 7
+                    self.countRotate = 0
                 return action
             else:
                 nextCx, nextCy = self.NextPosition().x,self.NextPosition().y 
@@ -226,14 +244,18 @@ class GameAI():
                     print("Já explorei")
                     rightX, rightY = self.GetAdjacentCoordinate("right")
                     leftX, leftY = self.GetAdjacentCoordinate("left")
-                    if(not self.hasExplored(rightX, rightY)):
+                    if(not self.hasExplored(rightX, rightY) and self.countRotate < 10):
                         action = 0
-                    elif(not self.hasExplored(leftX, leftY)):
+                        self.countRotate += 1
+                    elif(not self.hasExplored(leftX, leftY) and self.countRotate < 10 ):
                         action = 1
+                        self.countRotate += 1
                     else:
                         action = 2
+                        self.countRotate = 0
                 else:
                     action = 2
+                    self.countRotate = 0
 
 
         # print("Mandando a action ", action)
@@ -333,7 +355,7 @@ class GameAI():
     def GetObservations(self, o):  
        
         for s in o:
-            # print(s)
+            print(s)
             if s == 'blocked':
                 # self.botCompass[0] = 1
                 self.botCompass['front'] = 1
@@ -421,6 +443,9 @@ class GameAI():
 
             elif "enemy#" in s:
                 self.botEnvironment[3] = 1
+
+            elif s == "hit":
+                self.botEnvironment[4] = 1
 
 
 
