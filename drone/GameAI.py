@@ -20,6 +20,7 @@ __email__ = "abaffa@inf.puc-rio.br"
 
 import random
 from Map.Position import Position
+import astar as AS
 import numpy as np
 # <summary>
 # Game AI Example
@@ -45,6 +46,13 @@ class GameAI():
     botMap = np.array(34*[59*['?']])
 
     countRotate = 0
+
+    # lista de tesouros 
+    treasureList = []
+    cdTreasureList = []
+
+    # lista de vidas
+    lifeList = []
 
     # <summary>
     # Refresh player status
@@ -88,7 +96,7 @@ class GameAI():
         # W - Wall
         if (cX > 58 or cX < 0 or cY > 33 or cY < 0):
             return
-        elif (self.botMap[cY,cX] == '.' or self.botMap[cY,cX] == '?' or self.botMap[cY,cX] == '0'):
+        elif(self.botMap[cY,cX] == '.' or self.botMap[cY,cX] == '?'):
             self.botMap[cY,cX] = tile
 
     def printMap(self):
@@ -135,6 +143,8 @@ class GameAI():
 
 
     def UpdateBotCompass(self,command):
+        print("Energy: ", self.energy)
+        print("Score: ", self.score)
         self.printMap()
 
     # botCompass N(0), S(1), E(2), W(3), NE(4), SE(5), SW(6), NW(7)
@@ -200,7 +210,7 @@ class GameAI():
 
         # ===========================================================
         #  Escape State
-        elif(self.botEnvironment[4] == 1): 
+        elif(self.botEnvironment[4] == 1 and self.botEnvironment[3] != 1 ): 
             action = 0
             self.botEnvironment[4] = 0
 
@@ -209,14 +219,18 @@ class GameAI():
         #  Scavenger State
 
         elif(self.botEnvironment[0] == 1 or self.botEnvironment[2] == 1): # Treasure
+            self.updateMap(self.player.y,self.player.x,'T')
             if(self.triedToPickUpTreasure):
                 action = 4
+                self.cdTreasureList.append((self.player.y,self.player.x))
             else:
                 action = 5
                 self.triedToPickUpTreasure = True
+                self.cdTreasureList.append((self.player.y,self.player.x))
 
 
         elif(self.botEnvironment[1] == 1 and self.energy < 100): # Power
+            self.updateMap(self.player.y,self.player.x,'H')
             self.botEnvironment[1] = 0
             action = 6
 
@@ -225,6 +239,8 @@ class GameAI():
         #  Explorer State
         else:
             if(self.botCompass['front'] == 1): # Front Blocked
+                # rotDir = np.random.randint(0,2)
+                # if(rotDir == 0):
                 if(self.botCompass['right'] == 0 and self.countRotate < 10): # Right free
                     action = 0
                     self.countRotate += 1
@@ -234,6 +250,16 @@ class GameAI():
                 elif(self.botCompass['back'] == 0): # Back free
                     action = 7
                     self.countRotate = 0
+                # elif(rotDir == 1):
+                #     if(self.botCompass['left'] == 0 and self.countRotate < 10): # Left free
+                #         action = 1
+                #         self.countRotate += 1
+                #     elif(self.botCompass['right'] == 0 and self.countRotate < 10): # Right free
+                #         action = 0
+                #         self.countRotate += 1
+                #     elif(self.botCompass['back'] == 0): # Back free
+                #         action = 7
+                #         self.countRotate = 0
                 return action
             else:
                 nextCx, nextCy = self.NextPosition().x,self.NextPosition().y 
@@ -426,10 +452,12 @@ class GameAI():
             elif s == "blueLight":
                 self.botEnvironment[0] = 1
                 self.updateMap(self.player.y,self.player.x,'T')
+                self.treasureList.append((self.player.y, self.player.x))
 
             elif s == "redLight":
                 self.botEnvironment[1] = 1
                 self.updateMap(self.player.y,self.player.x,'H')
+                
 
             elif s == "greenLight":
                 pass
@@ -437,6 +465,7 @@ class GameAI():
             elif s == "weakLight":
                 self.botEnvironment[2] = 1
                 self.updateMap(self.player.y,self.player.x,'T')
+                #self.treasureList.append((self.player.y, self.player.x))
 
             elif "enemy#" in s:
                 self.botEnvironment[3] = 1

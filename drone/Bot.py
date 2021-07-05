@@ -25,7 +25,6 @@ from Socket.HandleClient import HandleClient
 from dto.PlayerInfo import PlayerInfo
 from dto.ScoreBoard import ScoreBoard
 import datetime
-import numpy as np
 
 # <summary>
 # Bot Class
@@ -72,12 +71,15 @@ class Bot():
 
     
     def convertFromString(self, c):
-        p = c.split([',', ']'])
 
-        A = int(p[0][(p[0].find('=') + 1):])
-        R = int(p[1][(p[1].find('=') + 1):])
-        G = int(p[2][(p[2].find('=') + 1):])
-        B = int(p[3][(p[3].find('=') + 1):])
+        c = c.replace('[','')
+        c = c.replace(']','')
+        p = c.split(',')
+
+        #A = int(p[0][((p[0].find('=')) + 1):])
+        R = int(p[1][((p[1].find('=')) + 1):])
+        G = int(p[2][((p[2].find('=')) + 1):])
+        B = int(p[3][((p[3].find('=')) + 1):])
 
         return (R, G, B)
     
@@ -198,8 +200,8 @@ class Bot():
                         for sb in self.scoreList:
                             self.sscoreList += sb.name + "\n"
                             self.sscoreList += ("connected" if sb.connected else "offline") + "\n"
-                            self.sscoreList += sb.energy + "\n"
-                            self.sscoreList += sb.score + "\n"
+                            self.sscoreList += str(sb.energy) + "\n"
+                            self.sscoreList += str(sb.score) + "\n"
                             self.sscoreList += "---\n"
                         
                         self.scoreList.clear()
@@ -266,8 +268,9 @@ class Bot():
                 ######################################################        
 
             except Exception as ex:
-                if(ex != None):
+                if ex != None:
                     print(ex)
+                pass
 
 
     # <summary>
@@ -354,8 +357,6 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
-
-
             self.client.sendRGB(204, 0, 255)  # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
