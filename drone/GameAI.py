@@ -193,17 +193,14 @@ class GameAI():
         #  Attack State
 
         if(self.botEnvironment[3] == 1): # Enemy in line
-            if(self.botEnvironment[4] == 1 and self.energy < 50):
-                action = 0
-            else:
-                action = 3
+            action = 3
             self.botEnvironment[3] = 0
 
 
 
         # ===========================================================
         #  Escape State
-        elif(self.botEnvironment[4] == 1): # Enemy in line
+        elif(self.botEnvironment[4] == 1): 
             action = 0
             self.botEnvironment[4] = 0
 
