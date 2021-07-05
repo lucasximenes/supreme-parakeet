@@ -86,9 +86,9 @@ class GameAI():
         # H - PowerUp
         # X - Danger
         # W - Wall
-        if(cX > 58 or cX < 0 or cY > 33 or cY < 0):
+        if (cX > 58 or cX < 0 or cY > 33 or cY < 0):
             return
-        elif(self.botMap[cY,cX] == '.' or self.botMap[cY,cX] == '?' or self.botMap[cY,cX] == '0' ):
+        elif (self.botMap[cY,cX] == '.' or self.botMap[cY,cX] == '?' or self.botMap[cY,cX] == '0'):
             self.botMap[cY,cX] = tile
 
     def printMap(self):
@@ -289,16 +289,16 @@ class GameAI():
     
         ret = []
 
-        ret.Add(Position(self.player.x - 1, self.player.y - 1))
-        ret.Add(Position(self.player.x, self.player.y - 1))
-        ret.Add(Position(self.player.x + 1, self.player.y - 1))
+        ret.append(Position(self.player.x - 1, self.player.y - 1))
+        ret.append(Position(self.player.x, self.player.y - 1))
+        ret.append(Position(self.player.x + 1, self.player.y - 1))
 
-        ret.Add(Position(self.player.x - 1, self.player.y))
-        ret.Add(Position(self.player.x + 1, self.player.y))
+        ret.append(Position(self.player.x - 1, self.player.y))
+        ret.append(Position(self.player.x + 1, self.player.y))
 
-        ret.Add(Position(self.player.x - 1, self.player.y + 1))
-        ret.Add(Position(self.player.x, self.player.y + 1))
-        ret.Add(Position(self.player.x + 1, self.player.y + 1))
+        ret.append(Position(self.player.x - 1, self.player.y + 1))
+        ret.append(Position(self.player.x, self.player.y + 1))
+        ret.append(Position(self.player.x + 1, self.player.y + 1))
 
         return ret
     
