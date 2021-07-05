@@ -79,7 +79,7 @@ class GameAI():
 
 
 
-    def updateMap(self,cX,cY,tile):
+    def updateMap(self,cY,cX,tile):
         # ? - Unknown 
         # . - Empty
         # T - Treasure
@@ -188,7 +188,7 @@ class GameAI():
 
     def StateAction(self):
 
-        self.updateMap(self.player.x,self.player.y,'.')
+        self.updateMap(self.player.y,self.player.x,'.')
         action = 0
 
         # ===========================================================
@@ -375,7 +375,7 @@ class GameAI():
 
                 coordX, coordY = self.NextPosition().x, self.NextPosition().y
 
-                self.updateMap(coordX,coordY,'W')
+                self.updateMap(coordY,coordX,'W')
 
 
             if s == 'shooting':
@@ -399,19 +399,19 @@ class GameAI():
                     # self.nearDanger = False
                 coordX, coordY = self.NextPosition().x, self.NextPosition().y
 
-                self.updateMap(coordX,coordY,'X')
+                self.updateMap(coordY,coordX,'X')
                 if(self.dir =="north"):
-                    self.updateMap(coordX+1,coordY-1,'X')
-                    self.updateMap(coordX-1,coordY-1,'X')
+                    self.updateMap(coordY-1,coordX+1,'X')
+                    self.updateMap(coordY-1,coordX-1,'X')
                 if(self.dir =="south"):
-                    self.updateMap(coordX+1,coordY+1,'X')
-                    self.updateMap(coordX-1,coordY+1,'X')
+                    self.updateMap(coordY+1,coordX+1,'X')
+                    self.updateMap(coordY+1,coordX-1,'X')
                 if(self.dir =="east"):
-                    self.updateMap(coordX-1,coordY+1,'X')
-                    self.updateMap(coordX-1,coordY-1,'X')
+                    self.updateMap(coordY+1,coordX-1,'X')
+                    self.updateMap(coordY-1,coordX-1,'X')
                 if(self.dir =="west"):
-                    self.updateMap(coordX+1,coordY+1,'X')
-                    self.updateMap(coordX+1,coordY-1,'X')
+                    self.updateMap(coordY+1,coordX+1,'X')
+                    self.updateMap(coordY-1,coordX+1,'X')
 
 
             elif s == "flash":
@@ -425,27 +425,27 @@ class GameAI():
                 #     self.nearDanger = False
                 coordX, coordY = self.NextPosition().x, self.NextPosition().y
 
-                self.updateMap(coordX,coordY,'X')
+                self.updateMap(coordY,coordX,'X')
                 if(self.dir =="north"):
-                    self.updateMap(coordX+1,coordY-1,'X')
-                    self.updateMap(coordX-1,coordY-1,'X')
+                    self.updateMap(coordY-1,coordX+1,'X')
+                    self.updateMap(coordY-1,coordX-1,'X')
                 if(self.dir =="south"):
-                    self.updateMap(coordX+1,coordY+1,'X')
-                    self.updateMap(coordX-1,coordY+1,'X')
+                    self.updateMap(coordY+1,coordX+1,'X')
+                    self.updateMap(coordY+1,coordX-1,'X')
                 if(self.dir =="east"):
-                    self.updateMap(coordX-1,coordY+1,'X')
-                    self.updateMap(coordX-1,coordY-1,'X')
+                    self.updateMap(coordY+1,coordX-1,'X')
+                    self.updateMap(coordY-1,coordX-1,'X')
                 if(self.dir =="west"):
-                    self.updateMap(coordX+1,coordY+1,'X')
-                    self.updateMap(coordX+1,coordY-1,'X')
+                    self.updateMap(coordY+1,coordX+1,'X')
+                    self.updateMap(coordY-1,coordX+1,'X')
 
             elif s == "blueLight":
-                self.botEnvironment[0] = 1
                 self.updateMap(self.player.y,self.player.x,'T')
+                self.botEnvironment[0] = 1
 
             elif s == "redLight":
-                self.botEnvironment[1] = 1
                 self.updateMap(self.player.y,self.player.x,'H')
+                self.botEnvironment[1] = 1
 
             elif s == "greenLight":
                 pass
