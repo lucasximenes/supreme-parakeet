@@ -20,7 +20,7 @@ __email__ = "abaffa@inf.puc-rio.br"
 
 import random
 from Map.Position import Position
-#import astar as AS
+import astar as AS
 import numpy as np
 from threading import Timer
 
@@ -48,6 +48,11 @@ class GameAI():
     botMap = np.array(34*[59*['?']])
 
     countRotate = 0
+
+    countShots = 0
+
+    # A*
+    pathFinder = AS.Pathfinder()
 
     # lista de tesouros 
     treasureList = []
@@ -239,7 +244,8 @@ class GameAI():
     def UpdateBotCompass(self,command):
         # print("Energy: ", self.energy)
         # print("Score: ", self.score)
-        self.printMap()
+        if(self.energy > 0):
+            self.printMap()
         # print(self.dir)
 
     # botCompass N(0), S(1), E(2), W(3), NE(4), SE(5), SW(6), NW(7)
@@ -292,13 +298,17 @@ class GameAI():
     def StateAction(self):
 
         self.updateMap(self.player.y,self.player.x,'.')
+
+
+
         action = 0
 
         # ===========================================================
         #  Attack State
 
-        if(self.botEnvironment[3] == 1): # Enemy in line
+        if(self.botEnvironment[3] == 1 and self.countShots<30): # Enemy in line
             action = 3
+            self.countShots +=1
             self.botEnvironment[3] = 0
 
 
@@ -308,6 +318,7 @@ class GameAI():
         elif(self.botEnvironment[4] == 1 and self.botEnvironment[3] != 1 ): 
             action = 0
             self.botEnvironment[4] = 0
+            self.countShots = 0
 
 
         # ===========================================================
@@ -326,6 +337,7 @@ class GameAI():
                 self.cdTreasureList.append((self.player.x,self.player.y))
                 self.timerTL.append(Timer(15.0,self.finishedTimerTL))
                 self.timerTL[len(self.timerTL) - 1].start()
+            self.countShots = 0
 
 
         elif(self.botEnvironment[1] == 1 and self.energy < 100): # Power
@@ -341,6 +353,7 @@ class GameAI():
             self.cdLifeList.append((self.player.x,self.player.y))
             self.timerLL.append(Timer(15.0,self.finishedTimerLL))
             self.timerLL[len(self.timerLL) - 1].start()
+            self.countShots = 0
 
 
         # ===========================================================
@@ -368,6 +381,7 @@ class GameAI():
                     elif(self.botCompass['back'] == 0): # Back free
                         action = 7
                         self.countRotate = 0 
+                self.countShots = 0
                 return action
             else:
                 nextCx, nextCy = self.NextPosition().x,self.NextPosition().y 
@@ -382,11 +396,23 @@ class GameAI():
                         action = 1
                         self.countRotate += 1
                     else:
-                        action = 2
+                        self.pathFinder.readMap(self.botMap)
+                        if(self.energy == 100):
+                            if(len(self.treasureList) > 0):
+                                treasure = self.treasureList[0]
+                                directions = self.pathFinder.aStar((self.player.x,self.player.y),treasure,self.pathFinder.gameMap)
+                                action = directions[0]
+                        elif(len(self.lifeList) > 0):
+                                health = self.treasureList[0]
+                                directions = self.pathFinder.aStar((self.player.x,self.player.y),health,self.pathFinder.gameMap)
+                                action = directions[0]
+                        else:
+                            action = 2
                         self.countRotate = 0
                 else:
                     action = 2
                     self.countRotate = 0
+                self.countShots = 0
 
 
         # print("Mandando a action ", action)

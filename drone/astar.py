@@ -34,22 +34,24 @@ class Pathfinder:
         self.end = (0, 0)
 
     def readMap(self, realMap):
+        self.gameMap = []
         for line in realMap:
             newLine = []
-            for col in line:
+            listLine = list(line)
+            for col in listLine:
                 newLine.append(col)
             self.gameMap.append(newLine)
 
 
     def inMap(self, x: int, y: int):
-        return (x >= 0) and (y >= 0) and (x < 36) and (y < 61)
+        return (x >= 0) and (y >= 0) and (x < 59) and (y < 34)
     
     def manhattanDistance(self, x: int, y: int, dest):
         return (abs(x - dest[0]) + abs(y - dest[0]))/2
 
     def numerify(val):
-        if val == 'M' or val == 'W':
-            return 200
+        if val == 'X' or val == 'W' or val == '?':
+            return 1000
         elif val == 'T' or val == 'H':
             return 1
         elif val == '.':
@@ -76,7 +78,7 @@ class Pathfinder:
             x, y = mapInfo[x][y].parent_x, mapInfo[x][y].parent_y
         # path.append((x,y))
         path.reverse()
-        return path, totalCost
+        return path
 
     def aStar(self, start, end, gameMap, heuristicFunction=manhattanDistance):
         if self.inMap(start[0], start[1]) == False:
@@ -91,9 +93,9 @@ class Pathfinder:
             print("Initial position is the same as the final\n")
             return
         
-        numericalMap = [list(map(self.numerify, gameMap[i])) for i in range(36)] # mapa dos custos
-        closedList = [[False for i in range(61)] for j in range(36)]
-        mapInfo = [[Cell(cost=numericalMap[j][i]) for i in range(61)] for j in range(36)]
+        numericalMap = [list(map(self.numerify, gameMap[i])) for i in range(59)] # mapa dos custos
+        closedList = [[False for i in range(34)] for j in range(59)]
+        mapInfo = [[Cell(cost=numericalMap[j][i]) for i in range(34)] for j in range(59)]
         mapInfo[start[0]][start[1]].update(x = start[0], y=start[1], f=0, g=0, h=0, cost=0)
         openList = []
         openList.append([0, [start[0], start[1]]])
