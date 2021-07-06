@@ -1,3 +1,16 @@
+def numerify(val):
+        if val == 'X' or val == 'W' or val == '?':
+            return 1000
+        elif val == 'T' or val == 'H':
+            return 1
+        elif val == '.':
+            return 5
+        else:
+            return 10
+
+def manhattanDistance(x: int, y: int, dest):
+        return (abs(x - dest[0]) + abs(y - dest[0]))/2
+
 class Cell:
     def __init__(self, cost = 1e10):
         self.f = 1e10
@@ -41,23 +54,14 @@ class Pathfinder:
             for col in listLine:
                 newLine.append(col)
             self.gameMap.append(newLine)
+        
+        print(len(self.gameMap))
+        print(len(self.gameMap[0]))
+        print(self.gameMap)
 
 
     def inMap(self, x: int, y: int):
         return (x >= 0) and (y >= 0) and (x < 59) and (y < 34)
-    
-    def manhattanDistance(self, x: int, y: int, dest):
-        return (abs(x - dest[0]) + abs(y - dest[0]))/2
-
-    def numerify(val):
-        if val == 'X' or val == 'W' or val == '?':
-            return 1000
-        elif val == 'T' or val == 'H':
-            return 1
-        elif val == '.':
-            return 5
-        else:
-            return 10
 
     def tracePath(self, mapInfo, end, start):
         x, y = end[0], end[1]
@@ -80,7 +84,10 @@ class Pathfinder:
         path.reverse()
         return path
 
-    def aStar(self, start, end, gameMap, heuristicFunction=manhattanDistance):
+    def aStar(self, start, end, gameMap):
+        print("start = ", start)
+        print("end = ", end)
+        end = (end[1], end[0])
         if self.inMap(start[0], start[1]) == False:
             print("Nonexistent inital position\n")
             return
@@ -93,9 +100,9 @@ class Pathfinder:
             print("Initial position is the same as the final\n")
             return
         
-        numericalMap = [list(map(self.numerify, gameMap[i])) for i in range(59)] # mapa dos custos
-        closedList = [[False for i in range(34)] for j in range(59)]
-        mapInfo = [[Cell(cost=numericalMap[j][i]) for i in range(34)] for j in range(59)]
+        numericalMap = [list(map(numerify, gameMap[i])) for i in range(34)] # mapa dos custos
+        closedList = [[False for i in range(59)] for j in range(34)]
+        mapInfo = [[Cell(cost=numericalMap[j][i]) for i in range(59)] for j in range(34)]
         mapInfo[start[0]][start[1]].update(x = start[0], y=start[1], f=0, g=0, h=0, cost=0)
         openList = []
         openList.append([0, [start[0], start[1]]])
@@ -116,7 +123,7 @@ class Pathfinder:
                     
                 elif closedList[x - 1][y] == False:
                     gNew = mapInfo[x][y].g + mapInfo[x - 1][y].cost
-                    hNew = heuristicFunction(x - 1, y, end)
+                    hNew = manhattanDistance(x - 1, y, end)
                     fNew = gNew + hNew
     
                     if (mapInfo[x - 1][y].f == 1e10 or mapInfo[x - 1][y].f > fNew):
@@ -133,7 +140,7 @@ class Pathfinder:
 
                 elif closedList[x + 1][y] == False:
                     gNew = mapInfo[x][y].g + mapInfo[x + 1][y].cost
-                    hNew = heuristicFunction(x + 1, y, end)
+                    hNew = manhattanDistance(x + 1, y, end)
                     fNew = gNew + hNew
     
                     if (mapInfo[x + 1][y].f == 1e10 or mapInfo[x + 1][y].f > fNew):
@@ -150,7 +157,7 @@ class Pathfinder:
 
                 elif closedList[x][y - 1] == False:
                     gNew = mapInfo[x][y].g + mapInfo[x][y - 1].cost
-                    hNew = heuristicFunction(x, y - 1, end)
+                    hNew = manhattanDistance(x, y - 1, end)
                     fNew = gNew + hNew
     
                     if (mapInfo[x][y - 1].f == 1e10 or mapInfo[x][y - 1].f > fNew):
@@ -167,7 +174,7 @@ class Pathfinder:
 
                 elif closedList[x][y + 1] == False:
                     gNew = mapInfo[x][y].g + mapInfo[x][y + 1].cost
-                    hNew = heuristicFunction(x, y + 1, end)
+                    hNew = manhattanDistance(x, y + 1, end)
                     fNew = gNew + hNew
     
                     if (mapInfo[x][y + 1].f == 1e10 or mapInfo[x][y + 1].f > fNew):

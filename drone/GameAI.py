@@ -396,16 +396,28 @@ class GameAI():
                         action = 1
                         self.countRotate += 1
                     else:
-                        self.pathFinder.readMap(self.botMap)
-                        if(self.energy == 100):
-                            if(len(self.treasureList) > 0):
-                                treasure = self.treasureList[0]
-                                directions = self.pathFinder.aStar((self.player.x,self.player.y),treasure,self.pathFinder.gameMap)
-                                action = directions[0]
-                        elif(len(self.lifeList) > 0):
-                                health = self.treasureList[0]
-                                directions = self.pathFinder.aStar((self.player.x,self.player.y),health,self.pathFinder.gameMap)
-                                action = directions[0]
+                        if '?' in self.botMap[self.player.y]:
+                            if np.where(self.botMap[self.player.y] == '?')[0] > self.player.y:
+                                if self.dir == 'east':
+                                    action = 1
+                                else:
+                                    action = 0
+                            else:
+                                if self.dir == 'east':
+                                    action = 0
+                                else:
+                                    action = 1
+                        elif '?' in self.botMap[:, self.player.x]:
+                            if np.where(self.botMap[:, self.player.x] == '?')[0] > self.player.x:
+                                if self.dir == 'north':
+                                    action = 0
+                                else:
+                                    action = 1
+                            else:
+                                if self.dir == 'south':
+                                    action = 1
+                                else:
+                                    action = 0
                         else:
                             action = 2
                         self.countRotate = 0
