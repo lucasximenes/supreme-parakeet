@@ -230,17 +230,23 @@ class GameAI():
             else:
                 action = 5
                 self.triedToPickUpTreasure = True
-            
-            self.treasureList.remove((self.player.x,self.player.y))
-            self.cdTreasureList.append((self.player.x,self.player.y))
-            self.timerTL.append(Timer(15.0,self.finishedTimerTL))
-            self.timerTL[len(self.timerTL) - 1].start()
+                if((self.player.x,self.player.y) not in self.treasureList):
+                    self.treasureList.append((self.player.x,self.player.y))
+                self.treasureList.remove((self.player.x,self.player.y))
+                self.cdTreasureList.append((self.player.x,self.player.y))
+                self.timerTL.append(Timer(15.0,self.finishedTimerTL))
+                self.timerTL[len(self.timerTL) - 1].start()
 
 
         elif(self.botEnvironment[1] == 1 and self.energy < 100): # Power
             self.updateMap(self.player.y,self.player.x,'H')
             self.botEnvironment[1] = 0
             action = 6
+
+            #print("oi",self.lifeList, (self.player.x,self.player.y) )
+            if((self.player.x,self.player.y) not in self.lifeList):
+                self.lifeList.append((self.player.x,self.player.y))
+
             self.lifeList.remove((self.player.x,self.player.y))
             self.cdLifeList.append((self.player.x,self.player.y))
             self.timerLL.append(Timer(15.0,self.finishedTimerLL))
@@ -478,7 +484,8 @@ class GameAI():
 
                 self.botEnvironment[0] = 1
 
-                self.treasureList.append((self.player.x, self.player.y))
+                if((self.player.x,self.player.y) not in self.treasureList):
+                    self.treasureList.append((self.player.x, self.player.y))
 
 
             elif s == "redLight":
@@ -486,7 +493,8 @@ class GameAI():
 
                 self.botEnvironment[1] = 1
 
-                self.lifeList.append((self.player.x,self.player.y))
+                if((self.player.x,self.player.y) not in self.lifeList):
+                    self.lifeList.append((self.player.x,self.player.y))
 
                 
 
@@ -497,7 +505,8 @@ class GameAI():
             elif s == "weakLight":
                 self.botEnvironment[2] = 1
                 self.updateMap(self.player.y,self.player.x,'T')
-                self.treasureList.append((self.player.x, self.player.y))
+                if((self.player.x,self.player.y) not in self.treasureList):
+                    self.treasureList.append((self.player.x, self.player.y))
                 
 
             elif "enemy#" in s:
