@@ -426,8 +426,10 @@ class GameAI():
 
                 # if(self.nearDanger == False):
                 self.botCompass['front'] = 1
-                self.botCompass['left'] = -1
-                self.botCompass['right'] = -1
+                self.botCompass['left'] = 1
+                self.botCompass['right'] = 1
+                self.botCompass['upright'] = 1
+                self.botCompass['upleft'] = 1
                     # self.nearDanger = True
                 # else:
                     # self.nearDanger = False
@@ -452,8 +454,10 @@ class GameAI():
         
                 # if(self.nearDanger == False):
                 self.botCompass['front'] = 1
-                self.botCompass['left'] = -1
-                self.botCompass['right'] = -1
+                self.botCompass['left'] = 1
+                self.botCompass['right'] = 1
+                self.botCompass['upright'] = 1
+                self.botCompass['upleft'] = 1
                     # self.nearDanger = True
                 # else:
                 #     self.nearDanger = False
