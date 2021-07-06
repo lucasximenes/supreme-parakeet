@@ -78,7 +78,7 @@ class Pathfinder:
         path.reverse()
         return path, totalCost
 
-    def aStar(self, start, end, gameMap, heuristicFunction):
+    def aStar(self, start, end, gameMap, heuristicFunction=manhattanDistance):
         if self.inMap(start[0], start[1]) == False:
             print("Nonexistent inital position\n")
             return
