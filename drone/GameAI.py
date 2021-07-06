@@ -37,7 +37,7 @@ class GameAI():
 
 
 
-    nearDanger = False
+
     triedToPickUpTreasure = False
 
     botCompass = {'front':0,'back':0,'right':0,'left':0,'upright':0,'upleft':0,'lowright':0,'lowleft':0}
@@ -231,8 +231,8 @@ class GameAI():
                 action = 5
                 self.triedToPickUpTreasure = True
             
-            self.treasureList.remove((self.player.y,self.player.x))
-            self.cdTreasureList.append((self.player.y,self.player.x))
+            self.treasureList.remove((self.player.x,self.player.y))
+            self.cdTreasureList.append((self.player.x,self.player.y))
             self.timerTL.append(Timer(15.0,self.finishedTimerTL))
             self.timerTL[len(self.timerTL) - 1].start()
 
@@ -241,8 +241,8 @@ class GameAI():
             self.updateMap(self.player.y,self.player.x,'H')
             self.botEnvironment[1] = 0
             action = 6
-            self.lifeList.remove((self.player.y,self.player.x))
-            self.cdLifeList.append((self.player.y,self.player.x))
+            self.lifeList.remove((self.player.x,self.player.y))
+            self.cdLifeList.append((self.player.x,self.player.y))
             self.timerLL.append(Timer(15.0,self.finishedTimerLL))
             self.timerLL[len(self.timerLL) - 1].start()
 
@@ -423,10 +423,11 @@ class GameAI():
             
             elif s == "breeze":
 
+
                 # if(self.nearDanger == False):
                 self.botCompass['front'] = 1
-                self.botCompass['left'] = 1
-                self.botCompass['right'] = 1
+                self.botCompass['left'] = -1
+                self.botCompass['right'] = -1
                     # self.nearDanger = True
                 # else:
                     # self.nearDanger = False
@@ -448,11 +449,11 @@ class GameAI():
 
 
             elif s == "flash":
-
+        
                 # if(self.nearDanger == False):
                 self.botCompass['front'] = 1
-                self.botCompass['left'] = 1
-                self.botCompass['right'] = 1
+                self.botCompass['left'] = -1
+                self.botCompass['right'] = -1
                     # self.nearDanger = True
                 # else:
                 #     self.nearDanger = False
