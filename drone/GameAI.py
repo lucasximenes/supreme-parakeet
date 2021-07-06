@@ -90,6 +90,47 @@ class GameAI():
         else:
             return False
 
+    def isDanger(self, cY, cX):
+        return self.botMap[cY,cX] == 'X'
+
+
+    def setDanger(self, cY, cX):
+
+        newDangers = []
+
+        if(self.dir =="north"):
+            newDangers.append((self.player.y,self.player.x+1))
+            newDangers.append((self.player.y,self.player.x-1))
+            newDangers.append((self.player.y-1,self.player.x))
+        if(self.dir =="south"):
+            newDangers.append((self.player.y,self.player.x-1))
+            newDangers.append((self.player.y,self.player.x+1))
+            newDangers.append((self.player.y+1,self.player.x))
+        if(self.dir =="east"):
+            newDangers.append((self.player.y+1,self.player.x))
+            newDangers.append((self.player.y-1,self.player.x))
+            newDangers.append((self.player.y,self.player.x+1))
+        if(self.dir =="west"):
+            newDangers.append((self.player.y-1,self.player.x))
+            newDangers.append((self.player.y+1,self.player.x))
+            newDangers.append((self.player.y,self.player.x-1))
+
+        hasDanger = []
+
+        for i in newDangers:
+            if(self.isDanger(i[0],i[1])):
+                hasDanger.append(i)
+
+        if(len(hasDanger)==0):
+            for j in newDangers:
+                self.updateMap(j[0],j[1],"X")
+            return newDangers
+        else:
+            return hasDanger
+
+        
+        
+
     def updateMap(self,cY,cX,tile):
         # ? - Unknown 
         # . - Empty
@@ -100,6 +141,9 @@ class GameAI():
         if (cX > 58 or cX < 0 or cY > 33 or cY < 0):
             return
         elif(self.botMap[cY,cX] == '.' or self.botMap[cY,cX] == '?'):
+            if(self.botMap[cY,cX] == '.' and not (tile == "T" or tile == 'H')):
+                return
+
             self.botMap[cY,cX] = tile
 
     def printMap(self):
@@ -122,7 +166,6 @@ class GameAI():
     #     print(self.botCompass[3],botSymbol[self.dir],self.botCompass[2])
     #     print(self.botCompass[6],self.botCompass[1],self.botCompass[5])
 
-
     def GetAdjacentCoordinate(self,side):
         if(side == 'right'):
             if(self.dir == 'north'):
@@ -143,12 +186,61 @@ class GameAI():
             if(self.dir == 'west'):
                 return self.player.x , self.player.y + 1
 
+    def getRelDirection(self,cY, cX, oY, oX):
+        print(self.dir,cY, cX, oY, oX)
+        if (self.dir == "north"):
+            if (oX == cX):
+                if (oY > cY):
+                    return "back"
+                elif (oY < cY):
+                    return "front"
+            elif (oY == cY):
+                if (oX < cX):
+                    return "left"
+                elif (oX > cX):
+                    return "right"
+        elif (self.dir == "south"):
+            if (oX == cX):
+                if (oY > cY):
+                    return "front"
+                elif (oY < cY):
+                    return "back"
+            elif (oY == cY):
+                if (oX < cX):
+                    return "right"
+                elif (oX > cX):
+                    return "left"
+        elif (self.dir == "west"):
+            if (oX == cX):
+                if (oY > cY):
+                    return "left"
+                elif (oY < cY):
+                    return "right"
+            elif (oY == cY):
+                if (oX < cX):
+                    return "front"
+                elif (oX > cX):
+                    return "back"
+        elif (self.dir == "east"):
+            if (oX == cX):
+                if (oY > cY):
+                    return "right"
+                elif (oY < cY):
+                    return "left"
+            elif (oY == cY):
+                if (oX < cX):
+                    return "back"
+                elif (oX > cX):
+                    return "front"
+        else:
+            return ""
 
 
     def UpdateBotCompass(self,command):
-        print("Energy: ", self.energy)
-        print("Score: ", self.score)
+        # print("Energy: ", self.energy)
+        # print("Score: ", self.score)
         self.printMap()
+        # print(self.dir)
 
     # botCompass N(0), S(1), E(2), W(3), NE(4), SE(5), SW(6), NW(7)
 
@@ -255,27 +347,27 @@ class GameAI():
         #  Explorer State
         else:
             if(self.botCompass['front'] == 1): # Front Blocked
-                # rotDir = np.random.randint(0,2)
-                # if(rotDir == 0):
-                if(self.botCompass['right'] == 0 and self.countRotate < 10): # Right free
-                    action = 0
-                    self.countRotate += 1
-                elif(self.botCompass['left'] == 0 and self.countRotate < 10): # Left free
-                    action = 1
-                    self.countRotate += 1
-                elif(self.botCompass['back'] == 0): # Back free
-                    action = 7
-                    self.countRotate = 0
-                # elif(rotDir == 1):
-                #     if(self.botCompass['left'] == 0 and self.countRotate < 10): # Left free
-                #         action = 1
-                #         self.countRotate += 1
-                #     elif(self.botCompass['right'] == 0 and self.countRotate < 10): # Right free
-                #         action = 0
-                #         self.countRotate += 1
-                #     elif(self.botCompass['back'] == 0): # Back free
-                #         action = 7
-                #         self.countRotate = 0
+                rotDir = np.random.randint(0,2)
+                if(rotDir == 0):
+                    if(self.botCompass['right'] == 0 and self.countRotate < 10): # Right free
+                        action = 0
+                        self.countRotate += 1
+                    elif(self.botCompass['left'] == 0 and self.countRotate < 10): # Left free
+                        action = 1
+                        self.countRotate += 1
+                    elif(self.botCompass['back'] == 0): # Back free
+                        action = 7
+                        self.countRotate = 0
+                else:
+                    if(self.botCompass['left'] == 0 and self.countRotate < 10): # Right free
+                        action = 1
+                        self.countRotate += 1
+                    elif(self.botCompass['right'] == 0 and self.countRotate < 10): # Left free
+                        action = 0
+                        self.countRotate += 1
+                    elif(self.botCompass['back'] == 0): # Back free
+                        action = 7
+                        self.countRotate = 0 
                 return action
             else:
                 nextCx, nextCy = self.NextPosition().x,self.NextPosition().y 
@@ -306,6 +398,18 @@ class GameAI():
         # print(self.player.x)
 
         return action
+
+    def finishedTimerTL(self):
+        self.timerTL[0].cancel()
+        self.timerTL = self.timerTL[1:]
+        self.treasureList.append(self.cdTreasureList[0])
+        self.cdTreasureList = self.cdTreasureList[1:]
+
+    def finishedTimerLL(self):
+        self.timerLL[0].cancel()
+        self.timerLL = self.timerLL[1:]
+        self.lifeList.append(self.cdLifeList[0])
+        self.cdLifeList = self.cdLifeList[1:]
 
 
     # <summary>
@@ -385,18 +489,6 @@ class GameAI():
         self.player.x = x
         self.player.y = y
 
-    def finishedTimerTL(self):
-        self.timerTL[0].cancel()
-        self.timerTL = self.timerTL[1:]
-        self.treasureList.append(self.cdTreasureList[0])
-        self.cdTreasureList = self.cdTreasureList[1:]
-
-    def finishedTimerLL(self):
-        self.timerLL[0].cancel()
-        self.timerLL = self.timerLL[1:]
-        self.lifeList.append(self.cdLifeList[0])
-        self.cdlifeList = self.cdlifeList[1:]
-
 
     # <summary>
     # Observations received
@@ -405,7 +497,7 @@ class GameAI():
     def GetObservations(self, o):  
        
         for s in o:
-            print(s)
+            # print(s)
             if s == 'blocked':
                 # self.botCompass[0] = 1
                 self.botCompass['front'] = 1
@@ -424,62 +516,48 @@ class GameAI():
                 # self.botCompass[0] = 1
                 self.botCompass['front'] = 1
                 # pass
-            
-            elif s == "breeze":
 
 
-                # if(self.nearDanger == False):
-                self.botCompass['front'] = 1
-                self.botCompass['left'] = 1
-                self.botCompass['right'] = 1
-                self.botCompass['upright'] = 1
-                self.botCompass['upleft'] = 1
-                    # self.nearDanger = True
-                # else:
-                    # self.nearDanger = False
-                coordX, coordY = self.NextPosition().x, self.NextPosition().y
+            elif s == "flash" or s == "breeze":
+                print("Amigo estou aqui")
+                next_pos = self.NextPosition()
+                coordX, coordY = next_pos.x, next_pos.y
 
-                self.updateMap(coordY,coordX,'X')
-                if(self.dir =="north"):
-                    self.updateMap(coordY-1,coordX+1,'X')
-                    self.updateMap(coordY-1,coordX-1,'X')
-                if(self.dir =="south"):
-                    self.updateMap(coordY+1,coordX+1,'X')
-                    self.updateMap(coordY+1,coordX-1,'X')
-                if(self.dir =="east"):
-                    self.updateMap(coordY+1,coordX-1,'X')
-                    self.updateMap(coordY-1,coordX-1,'X')
-                if(self.dir =="west"):
-                    self.updateMap(coordY+1,coordX+1,'X')
-                    self.updateMap(coordY-1,coordX+1,'X')
+                dangers = self.setDanger(coordY,coordX)
+                print(dangers)
 
+                for el in dangers:
+                    rel_dir = self.getRelDirection(self.player.y, self.player.x, el[0],el[1])
+                    print(rel_dir)
+                    if rel_dir != "":
 
-            elif s == "flash":
-        
-                # if(self.nearDanger == False):
-                self.botCompass['front'] = 1
-                self.botCompass['left'] = 1
-                self.botCompass['right'] = 1
-                self.botCompass['upright'] = 1
-                self.botCompass['upleft'] = 1
-                    # self.nearDanger = True
-                # else:
-                #     self.nearDanger = False
-                coordX, coordY = self.NextPosition().x, self.NextPosition().y
+                        self.botCompass[rel_dir] = 1
+                        print(self.botCompass)
 
-                self.updateMap(coordY,coordX,'X')
-                if(self.dir =="north"):
-                    self.updateMap(coordY-1,coordX+1,'X')
-                    self.updateMap(coordY-1,coordX-1,'X')
-                if(self.dir =="south"):
-                    self.updateMap(coordY+1,coordX+1,'X')
-                    self.updateMap(coordY+1,coordX-1,'X')
-                if(self.dir =="east"):
-                    self.updateMap(coordY+1,coordX-1,'X')
-                    self.updateMap(coordY-1,coordX-1,'X')
-                if(self.dir =="west"):
-                    self.updateMap(coordY+1,coordX+1,'X')
-                    self.updateMap(coordY-1,coordX+1,'X')
+                                
+
+                # self.botCompass['front'] = 1
+                # self.botCompass['left'] = 1
+                # self.botCompass['right'] = 1
+                # self.botCompass['upright'] = 1
+                # self.botCompass['upleft'] = 1
+ 
+                # coordX, coordY = self.NextPosition().x, self.NextPosition().y
+
+                # self.updateMap(coordY,coordX,'X')
+                # if(self.dir =="north"):
+                #     self.updateMap(coordY-1,coordX+1,'X')
+                #     self.updateMap(coordY-1,coordX-1,'X')
+                # if(self.dir =="south"):
+                #     self.updateMap(coordY+1,coordX+1,'X')
+                #     self.updateMap(coordY+1,coordX-1,'X')
+                # if(self.dir =="east"):
+                #     self.updateMap(coordY+1,coordX-1,'X')
+                #     self.updateMap(coordY-1,coordX-1,'X')
+                # if(self.dir =="west"):
+                #     self.updateMap(coordY+1,coordX+1,'X')
+                #     self.updateMap(coordY-1,coordX+1,'X')
+                
 
             elif s == "blueLight":
                 self.updateMap(self.player.y,self.player.x,'T')
