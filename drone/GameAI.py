@@ -20,6 +20,7 @@ __email__ = "abaffa@inf.puc-rio.br"
 
 import random
 from Map.Position import Position
+import astar as AS
 import numpy as np
 # <summary>
 # Game AI Example
@@ -45,6 +46,13 @@ class GameAI():
     botMap = np.array(34*[59*['?']])
 
     countRotate = 0
+
+    # lista de tesouros 
+    treasureList = []
+    cdTreasureList = []
+
+    # lista de vidas
+    lifeList = []
 
     # <summary>
     # Refresh player status
@@ -86,7 +94,7 @@ class GameAI():
         # H - PowerUp
         # X - Danger
         # W - Wall
-        if(cX > 58 or cX < 0 or cY > 33 or cY < 0):
+        if (cX > 58 or cX < 0 or cY > 33 or cY < 0):
             return
         elif(self.botMap[cY,cX] == '.' or self.botMap[cY,cX] == '?'):
             self.botMap[cY,cX] = tile
@@ -214,9 +222,11 @@ class GameAI():
             self.updateMap(self.player.y,self.player.x,'T')
             if(self.triedToPickUpTreasure):
                 action = 4
+                self.cdTreasureList.append((self.player.y,self.player.x))
             else:
                 action = 5
                 self.triedToPickUpTreasure = True
+                self.cdTreasureList.append((self.player.y,self.player.x))
 
 
         elif(self.botEnvironment[1] == 1 and self.energy < 100): # Power
@@ -305,16 +315,16 @@ class GameAI():
     
         ret = []
 
-        ret.add(Position(self.player.x - 1, self.player.y - 1))
-        ret.add(Position(self.player.x, self.player.y - 1))
-        ret.add(Position(self.player.x + 1, self.player.y - 1))
+        ret.append(Position(self.player.x - 1, self.player.y - 1))
+        ret.append(Position(self.player.x, self.player.y - 1))
+        ret.append(Position(self.player.x + 1, self.player.y - 1))
 
-        ret.add(Position(self.player.x - 1, self.player.y))
-        ret.add(Position(self.player.x + 1, self.player.y))
+        ret.append(Position(self.player.x - 1, self.player.y))
+        ret.append(Position(self.player.x + 1, self.player.y))
 
-        ret.add(Position(self.player.x - 1, self.player.y + 1))
-        ret.add(Position(self.player.x, self.player.y + 1))
-        ret.add(Position(self.player.x + 1, self.player.y + 1))
+        ret.append(Position(self.player.x - 1, self.player.y + 1))
+        ret.append(Position(self.player.x, self.player.y + 1))
+        ret.append(Position(self.player.x + 1, self.player.y + 1))
 
         return ret
     
@@ -441,11 +451,19 @@ class GameAI():
 
             elif s == "blueLight":
                 self.updateMap(self.player.y,self.player.x,'T')
+
                 self.botEnvironment[0] = 1
+
+                self.treasureList.append((self.player.y, self.player.x))
+
 
             elif s == "redLight":
                 self.updateMap(self.player.y,self.player.x,'H')
+
                 self.botEnvironment[1] = 1
+
+                
+
 
             elif s == "greenLight":
                 pass
@@ -453,6 +471,7 @@ class GameAI():
             elif s == "weakLight":
                 self.botEnvironment[2] = 1
                 self.updateMap(self.player.y,self.player.x,'T')
+                #self.treasureList.append((self.player.y, self.player.x))
 
             elif "enemy#" in s:
                 self.botEnvironment[3] = 1
