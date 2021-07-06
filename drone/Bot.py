@@ -25,14 +25,16 @@ from Socket.HandleClient import HandleClient
 from dto.PlayerInfo import PlayerInfo
 from dto.ScoreBoard import ScoreBoard
 import datetime
-
+import numpy as np
 # <summary>
 # Bot Class
 # </summary>
 class Bot():
 
     name = "Boit" # BOT NAME
-    host = "atari.icad.puc-rio.br" # SERVER
+    host = "baffa.zapto.org" # SERVER
+
+    # host = "atari.icad.puc-rio.br" # SERVER
 
     client = None
     gameAi = None
@@ -205,6 +207,7 @@ class Bot():
                             self.sscoreList += "---\n"
                         
                         self.scoreList.clear()
+                        self.gameAi.botMap =  np.array(34*[59*['?']])
                     
                     
                 ######################################################        

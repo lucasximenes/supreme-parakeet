@@ -124,6 +124,7 @@ class GameAI():
         for i in newDangers:
             if(self.isDanger(i[0],i[1])):
                 hasDanger.append(i)
+        # hasDanger = []
 
         if(len(hasDanger)==0):
             for j in newDangers:
@@ -158,17 +159,6 @@ class GameAI():
             print()
         print("\n\n")
 
-    # def printCompass(self,oldStatex):
-    #     botSymbol = {"north": '^',"south": 'v',"east": '>',"west": '<'}
-
-    #     print("Antes:")
-    #     print(oldState[7],oldState[0],oldState[4])
-    #     print(oldState[3],"*",oldState[2])
-    #     print(oldState[6],oldState[1],oldState[5])
-    #     print("\n\nDepois:")
-    #     print(self.botCompass[7],self.botCompass[0],self.botCompass[4])
-    #     print(self.botCompass[3],botSymbol[self.dir],self.botCompass[2])
-    #     print(self.botCompass[6],self.botCompass[1],self.botCompass[5])
 
     def GetAdjacentCoordinate(self,side):
         if(side == 'right'):
@@ -673,29 +663,6 @@ class GameAI():
                         self.botCompass[rel_dir] = 1
                         # print(self.botCompass)
 
-                                
-
-                # self.botCompass['front'] = 1
-                # self.botCompass['left'] = 1
-                # self.botCompass['right'] = 1
-                # self.botCompass['upright'] = 1
-                # self.botCompass['upleft'] = 1
- 
-                # coordX, coordY = self.NextPosition().x, self.NextPosition().y
-
-                # self.updateMap(coordY,coordX,'X')
-                # if(self.dir =="north"):
-                #     self.updateMap(coordY-1,coordX+1,'X')
-                #     self.updateMap(coordY-1,coordX-1,'X')
-                # if(self.dir =="south"):
-                #     self.updateMap(coordY+1,coordX+1,'X')
-                #     self.updateMap(coordY+1,coordX-1,'X')
-                # if(self.dir =="east"):
-                #     self.updateMap(coordY+1,coordX-1,'X')
-                #     self.updateMap(coordY-1,coordX-1,'X')
-                # if(self.dir =="west"):
-                #     self.updateMap(coordY+1,coordX+1,'X')
-                #     self.updateMap(coordY-1,coordX+1,'X')
                 
 
             elif s == "blueLight":
