@@ -191,7 +191,7 @@ class GameAI():
                 return self.player.x , self.player.y + 1
 
     def getRelDirection(self,cY, cX, oY, oX):
-        print(self.dir,cY, cX, oY, oX)
+        # print(self.dir,cY, cX, oY, oX)
         if (self.dir == "north"):
             if (oX == cX):
                 if (oY > cY):
@@ -241,9 +241,9 @@ class GameAI():
 
 
     def UpdateBotCompass(self,command):
-        # print("Energy: ", self.energy)
-        # print("Score: ", self.score)
-        print(self.treasureList)
+        print("Energy: ", self.energy)
+        print("Score: ", self.score)
+        # print(self.treasureList)
         if(self.energy > 0):
             self.printMap()
         # print(self.dir)
@@ -345,7 +345,7 @@ class GameAI():
             self.updateMap(self.player.y,self.player.x,'H')
             self.botEnvironment[1] = 0
             action = 6
-
+            self.triedToPickUpTreasure = True
             #print("oi",self.lifeList, (self.player.x,self.player.y) )
             if((self.player.x,self.player.y) not in self.lifeList):
                 self.lifeList.append((self.player.x,self.player.y))
@@ -387,7 +387,7 @@ class GameAI():
             else:
                 nextCx, nextCy = self.NextPosition().x,self.NextPosition().y 
                 if(self.hasExplored(nextCx,nextCy) and self.isTryingToFindTreasure == False):
-                    print("Já explorei")
+                    # print("Já explorei")
                     rightX, rightY = self.GetAdjacentCoordinate("right")
                     leftX, leftY = self.GetAdjacentCoordinate("left")
                     if(not self.hasExplored(rightX, rightY) and self.countRotate < 10):
@@ -402,15 +402,28 @@ class GameAI():
                         while r < 34:
                             if(self.botMap[r,self.player.x] == 'W' or self.botMap[r,self.player.x] == 'X'):
                                 break
+
+                            if(self.botMap[r,self.player.x] == 'H' and (self.player.x, r) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+
                             if(self.botMap[r,self.player.x] == 'T' and (self.player.x, r) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
                                 return action
+                                
                             r +=1
                         l = self.player.y -1
                         while l >= 0:
                             if(self.botMap[l,self.player.x] == 'W' or self.botMap[l,self.player.x] == 'X'):
                                     break
+
+                            if(self.botMap[l,self.player.x] == 'H' and (self.player.x, l) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+
                             if(self.botMap[l,self.player.x] == 'T' and (self.player.x, l) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
@@ -421,6 +434,13 @@ class GameAI():
                         while r >= 0:
                             if(self.botMap[r,self.player.x] == 'W' or self.botMap[r,self.player.x] == 'X'):
                                 break
+
+
+                            if(self.botMap[r,self.player.x] == 'H' and (self.player.x, r) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+
                             if(self.botMap[r,self.player.x] == 'T' and (self.player.x, r) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
@@ -430,6 +450,12 @@ class GameAI():
                         while l < 34:
                             if(self.botMap[l,self.player.x] == 'W' or self.botMap[l,self.player.x] == 'X'):
                                     break
+
+                            if(self.botMap[l,self.player.x] == 'H' and (self.player.x, l) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+
                             if(self.botMap[l,self.player.x] == 'T' and (self.player.x, l) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
@@ -440,6 +466,12 @@ class GameAI():
                         while r < 59:
                             if(self.botMap[self.player.y,r] == 'W' or self.botMap[self.player.y,r] == 'X'):
                                 break
+
+                            if(self.botMap[self.player.y,r] == 'H' and (r, self.player.y) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+
                             if(self.botMap[self.player.y,r] == 'T' and (r, self.player.y) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
@@ -449,6 +481,13 @@ class GameAI():
                         while l >= 0:
                             if(self.botMap[self.player.y,l] == 'W' or self.botMap[self.player.y,l] == 'X'):
                                     break
+
+
+                            if(self.botMap[self.player.y,l] == 'H' and (l, self.player.y) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+                            
                             if(self.botMap[self.player.y,l] == 'T' and (l, self.player.y) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
@@ -459,6 +498,12 @@ class GameAI():
                         while r >= 0:
                             if(self.botMap[self.player.y,r] == 'W' or self.botMap[self.player.y,r] == 'X'):
                                 break
+
+                            if(self.botMap[self.player.y,r] == 'H' and (r, self.player.y) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+
                             if(self.botMap[self.player.y,r] == 'T' and (r, self.player.y) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
@@ -468,6 +513,13 @@ class GameAI():
                         while l < 59:
                             if(self.botMap[self.player.y,l] == 'W' or self.botMap[self.player.y,l] == 'X'):
                                     break
+
+
+                            if(self.botMap[self.player.y,l] == 'H' and (l, self.player.y) in self.lifeList and self.energy < 100):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+                            
                             if(self.botMap[self.player.y,l] == 'T' and (l, self.player.y) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
@@ -606,20 +658,20 @@ class GameAI():
 
 
             elif s == "flash" or s == "breeze":
-                print("Amigo estou aqui")
+                # print("Amigo estou aqui")
                 next_pos = self.NextPosition()
                 coordX, coordY = next_pos.x, next_pos.y
 
                 dangers = self.setDanger(coordY,coordX)
-                print(dangers)
+                # print(dangers)
 
                 for el in dangers:
                     rel_dir = self.getRelDirection(self.player.y, self.player.x, el[0],el[1])
-                    print(rel_dir)
+                    # print(rel_dir)
                     if rel_dir != "":
 
                         self.botCompass[rel_dir] = 1
-                        print(self.botCompass)
+                        # print(self.botCompass)
 
                                 
 
