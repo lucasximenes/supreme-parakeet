@@ -85,8 +85,6 @@ class GameAI():
         else:
             return False
 
-
-
     def updateMap(self,cY,cX,tile):
         # ? - Unknown 
         # . - Empty
