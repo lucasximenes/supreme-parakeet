@@ -51,8 +51,7 @@ class GameAI():
 
     countShots = 0
 
-    # A*
-    pathFinder = AS.Pathfinder()
+    isTryingToFindTreasure = False
 
     # lista de tesouros 
     treasureList = []
@@ -244,6 +243,7 @@ class GameAI():
     def UpdateBotCompass(self,command):
         # print("Energy: ", self.energy)
         # print("Score: ", self.score)
+        print(self.treasureList)
         if(self.energy > 0):
             self.printMap()
         # print(self.dir)
@@ -301,7 +301,7 @@ class GameAI():
 
 
 
-        action = 0
+        action = 2
 
         # ===========================================================
         #  Attack State
@@ -385,7 +385,7 @@ class GameAI():
                 return action
             else:
                 nextCx, nextCy = self.NextPosition().x,self.NextPosition().y 
-                if(self.hasExplored(nextCx,nextCy)):
+                if(self.hasExplored(nextCx,nextCy) and self.isTryingToFindTreasure == False):
                     print("Já explorei")
                     rightX, rightY = self.GetAdjacentCoordinate("right")
                     leftX, leftY = self.GetAdjacentCoordinate("left")
@@ -395,43 +395,92 @@ class GameAI():
                     elif(not self.hasExplored(leftX, leftY) and self.countRotate < 10 ):
                         action = 1
                         self.countRotate += 1
-                    else:
-                        if '?' in self.botMap[self.player.y]:
-                            if np.where(self.botMap[self.player.y] == '?')[0] > self.player.y:
-                                if self.dir == 'east':
-                                    action = 1
-                                else:
-                                    action = 0
-                            else:
-                                if self.dir == 'east':
-                                    action = 0
-                                else:
-                                    action = 1
-                        elif '?' in self.botMap[:, self.player.x]:
-                            if np.where(self.botMap[:, self.player.x] == '?')[0] > self.player.x:
-                                if self.dir == 'north':
-                                    action = 0
-                                else:
-                                    action = 1
-                            else:
-                                if self.dir == 'south':
-                                    action = 1
-                                else:
-                                    action = 0
-                        else:
-                            action = 2
-                        self.countRotate = 0
+                elif(self.isTryingToFindTreasure == False):
+                    if(self.dir == 'east'):
+                        r = self.player.y + 1
+                        while r < 34:
+                            if(self.botMap[r,self.player.x] == 'W' or self.botMap[r,self.player.x] == 'X'):
+                                break
+                            if(self.botMap[r,self.player.x] == 'T'):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+                            r +=1
+                        l = self.player.y -1
+                        while l >= 0:
+                            if(self.botMap[l,self.player.x] == 'W' or self.botMap[l,self.player.x] == 'X'):
+                                    break
+                            if(self.botMap[l,self.player.x] == 'T'):
+                                action =  1
+                                self.isTryingToFindTreasure = True
+                                return action
+                            l -=1
+                    elif(self.dir == 'west'):
+                        r = self.player.y -1
+                        while r >= 0:
+                            if(self.botMap[r,self.player.x] == 'W' or self.botMap[r,self.player.x] == 'X'):
+                                break
+                            if(self.botMap[r,self.player.x] == 'T'):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+                            r -=1
+                        l = self.player.y +1
+                        while l < 34:
+                            if(self.botMap[l,self.player.x] == 'W' or self.botMap[l,self.player.x] == 'X'):
+                                    break
+                            if(self.botMap[l,self.player.x] == 'T'):
+                                action =  1
+                                self.isTryingToFindTreasure = True
+                                return action
+                            l +=1
+                    elif(self.dir == 'north'):
+                        r = self.player.x +1
+                        while r < 59:
+                            if(self.botMap[self.player.y,r] == 'W' or self.botMap[self.player.y,r] == 'X'):
+                                break
+                            if(self.botMap[self.player.y,r] == 'T'):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+                            r +=1
+                        l = self.player.x -1
+                        while l >= 0:
+                            if(self.botMap[self.player.y,l] == 'W' or self.botMap[self.player.y,l] == 'X'):
+                                    break
+                            if(self.botMap[self.player.y,l] == 'T'):
+                                action =  1
+                                self.isTryingToFindTreasure = True
+                                return action
+                            l -=1
+                    elif(self.dir == 'south'):
+                        r = self.player.x -1
+                        while r >= 0:
+                            if(self.botMap[self.player.y,r] == 'W' or self.botMap[self.player.y,r] == 'X'):
+                                break
+                            if(self.botMap[self.player.y,r] == 'T'):
+                                action = 0 
+                                self.isTryingToFindTreasure = True
+                                return action
+                            r -=1
+                        l = self.player.x +1
+                        while l < 59:
+                            if(self.botMap[self.player.y,l] == 'W' or self.botMap[self.player.y,l] == 'X'):
+                                    break
+                            if(self.botMap[self.player.y,l] == 'T'):
+                                action =  1
+                                self.isTryingToFindTreasure = True
+                                return action
+                            l +=1
                 else:
                     action = 2
                     self.countRotate = 0
-                self.countShots = 0
+                    self.countShots = 0
+                    self.isTryingToFindTreasure = False
 
 
         # print("Mandando a action ", action)
 
-        if(action!=5):
-            self.triedToPickUpTreasure = False
-            self.botEnvironment[0] = 0
 
         # print(self.player.x)
 
@@ -655,6 +704,10 @@ class GameAI():
         # n = random.randint(0,7)
 
         n = self.StateAction()
+
+        if(n!=5):
+            self.triedToPickUpTreasure = False
+            self.botEnvironment[0] = 0
 
         if n == 0:
             self.UpdateBotCompass('right')
