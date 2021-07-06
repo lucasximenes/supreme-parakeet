@@ -326,6 +326,7 @@ class GameAI():
 
         elif(self.botEnvironment[0] == 1 or self.botEnvironment[2] == 1): # Treasure
             self.updateMap(self.player.y,self.player.x,'T')
+            self.isTryingToFindTreasure = False
             if(self.triedToPickUpTreasure):
                 action = 4
             else:
@@ -401,7 +402,7 @@ class GameAI():
                         while r < 34:
                             if(self.botMap[r,self.player.x] == 'W' or self.botMap[r,self.player.x] == 'X'):
                                 break
-                            if(self.botMap[r,self.player.x] == 'T'):
+                            if(self.botMap[r,self.player.x] == 'T' and (self.player.x, r) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -410,7 +411,7 @@ class GameAI():
                         while l >= 0:
                             if(self.botMap[l,self.player.x] == 'W' or self.botMap[l,self.player.x] == 'X'):
                                     break
-                            if(self.botMap[l,self.player.x] == 'T'):
+                            if(self.botMap[l,self.player.x] == 'T' and (self.player.x, l) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -420,7 +421,7 @@ class GameAI():
                         while r >= 0:
                             if(self.botMap[r,self.player.x] == 'W' or self.botMap[r,self.player.x] == 'X'):
                                 break
-                            if(self.botMap[r,self.player.x] == 'T'):
+                            if(self.botMap[r,self.player.x] == 'T' and (self.player.x, r) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -429,7 +430,7 @@ class GameAI():
                         while l < 34:
                             if(self.botMap[l,self.player.x] == 'W' or self.botMap[l,self.player.x] == 'X'):
                                     break
-                            if(self.botMap[l,self.player.x] == 'T'):
+                            if(self.botMap[l,self.player.x] == 'T' and (self.player.x, l) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -439,7 +440,7 @@ class GameAI():
                         while r < 59:
                             if(self.botMap[self.player.y,r] == 'W' or self.botMap[self.player.y,r] == 'X'):
                                 break
-                            if(self.botMap[self.player.y,r] == 'T'):
+                            if(self.botMap[self.player.y,r] == 'T' and (r, self.player.y) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -448,7 +449,7 @@ class GameAI():
                         while l >= 0:
                             if(self.botMap[self.player.y,l] == 'W' or self.botMap[self.player.y,l] == 'X'):
                                     break
-                            if(self.botMap[self.player.y,l] == 'T'):
+                            if(self.botMap[self.player.y,l] == 'T' and (l, self.player.y) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -458,7 +459,7 @@ class GameAI():
                         while r >= 0:
                             if(self.botMap[self.player.y,r] == 'W' or self.botMap[self.player.y,r] == 'X'):
                                 break
-                            if(self.botMap[self.player.y,r] == 'T'):
+                            if(self.botMap[self.player.y,r] == 'T' and (r, self.player.y) in self.treasureList):
                                 action = 0 
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -467,7 +468,7 @@ class GameAI():
                         while l < 59:
                             if(self.botMap[self.player.y,l] == 'W' or self.botMap[self.player.y,l] == 'X'):
                                     break
-                            if(self.botMap[self.player.y,l] == 'T'):
+                            if(self.botMap[self.player.y,l] == 'T' and (l, self.player.y) in self.treasureList):
                                 action =  1
                                 self.isTryingToFindTreasure = True
                                 return action
@@ -476,7 +477,6 @@ class GameAI():
                     action = 2
                     self.countRotate = 0
                     self.countShots = 0
-                    self.isTryingToFindTreasure = False
 
 
         # print("Mandando a action ", action)
